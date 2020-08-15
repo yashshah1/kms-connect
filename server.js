@@ -3,7 +3,7 @@ const path = require("path");
 const mongoose = require("mongoose");
 const express = require("express");
 const cors = require("cors");
-require("dotenv").config();
+// require("dotenv").config();
 
 mongoose
   .connect(process.env.KMMMS_MONGOURI, {
