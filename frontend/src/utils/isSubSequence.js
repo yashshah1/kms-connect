@@ -1,7 +1,6 @@
-function joinString(string) {
-  return string.split(" ").join("");
-}
-export default function isSubSequence(small, big) {
+const joinString = string => string.split(" ").join("");
+
+const isSubSequence = (small, big) => {
   small = joinString(small.toLowerCase());
   big = joinString(big.toLowerCase());
   let smallIndex = 0;
@@ -13,4 +12,5 @@ export default function isSubSequence(small, big) {
     if (small[smallIndex] === big[bigIndex]) smallIndex++;
   }
   return smallIndex === small.length;
-}
+};
+export default isSubSequence;

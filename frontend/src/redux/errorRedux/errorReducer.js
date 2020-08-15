@@ -11,7 +11,7 @@ const userReducer = (state = initialUserState, action) => {
       return {
         ...state,
         isError: true,
-        error: action.payload,
+        error: action.payload.msg,
       };
 
     case HIDE_ERROR:
