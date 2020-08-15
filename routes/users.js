@@ -14,7 +14,7 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  const { user } = req;
+  const { user } = req.body;
   try {
     const doc = await User.findOneAndUpdate(
       { person_no: parseInt(user.person_no) },
