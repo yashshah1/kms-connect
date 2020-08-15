@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-
+import { connect } from "react-redux";
 import {
   Button,
   Modal,
@@ -16,17 +16,18 @@ import {
 } from "reactstrap";
 
 import { Edit as EditIcon } from "@material-ui/icons";
-
 import DatePicker from "reactstrap-date-picker";
+
 import ModalTitle from "./ModalTitle";
 import Divider from "./Divider";
-
+import { updateUser } from "../../redux/userRedux/userActions";
 class EditProfileModal extends Component {
   constructor(props) {
     super(props);
     this.state = {
       user: { ...props.user },
       isOpen: false,
+      changed: false,
     };
   }
   capitalizeFirstLetter = string =>
@@ -36,6 +37,7 @@ class EditProfileModal extends Component {
     e.persist();
     this.setState(state => ({
       ...state,
+      changed: true,
       user: {
         ...state.user,
         [e.target.name]: e.target.value,
@@ -45,18 +47,39 @@ class EditProfileModal extends Component {
   onSubmit = e => {
     e.persist();
     e.preventDefault();
-    this.setState({
-      user: {
+    if (!this.state.changed) {
+      this.toggle();
+    } else {
+      const name = this.capitalizeFirstLetter(this.state.name);
+
+      const father_or_husband_name = this.capitalizeFirstLetter(
+        this.state.father_or_husband_name
+      );
+      const surname = this.capitalizeFirstLetter(this.state.surname);
+      const father_in_law_name = this.capitalizeFirstLetter(
+        this.state.father_in_law_name
+      );
+      const stream = this.capitalizeFirstLetter(this.state.stream);
+      const profession = this.capitalizeFirstLetter(this.state.profession);
+      const education_specialisation = this.capitalizeFirstLetter(
+        this.state.education_specialisation
+      );
+      const fullname = name + " " + father_or_husband_name + " " + surname;
+
+      const user = {
         ...this.state.user,
-        fullname:
-          this.state.name +
-          " " +
-          this.state.father_in_law_name +
-          " " +
-          this.state.surname,
-      },
-    });
-    console.log(this.state);
+        name,
+        father_or_husband_name,
+        surname,
+        father_in_law_name,
+        stream,
+        profession,
+        education_specialisation,
+        fullname,
+      };
+
+      this.props.updateUser(user);
+    }
   };
 
   toggle = () => {
@@ -91,21 +114,6 @@ class EditProfileModal extends Component {
                   onChange={this.onChange}
                   value={user.name}
                   invalid={!this.isFieldValid(user.name)}
-                  required
-                />
-                <FormFeedback>Please Enter a Name</FormFeedback>
-              </FormGroup>
-
-              <FormGroup>
-                <Label for="father_or_husband_name">Middle Name</Label>
-                <Input
-                  type="text"
-                  name="father_or_husband_name"
-                  placeholder="Middle Name"
-                  style={{ textTransform: "capitalize" }}
-                  onChange={this.onChange}
-                  value={user.father_or_husband_name}
-                  invalid={!this.isFieldValid(user.father_or_husband_name)}
                   required
                 />
                 <FormFeedback>Please Enter a Name</FormFeedback>
@@ -397,4 +405,4 @@ class EditProfileModal extends Component {
   }
 }
 
-export default EditProfileModal;
+export default connect(null, { updateUser })(EditProfileModal);

@@ -6,6 +6,15 @@ import Moment from "react-moment";
 import ModalTitle from "./Modal/ModalTitle";
 import Divider from "./Modal/Divider";
 
+// const user = {
+//   residential_landline: "022 - 27465264",
+//   office_address: null,
+//   office_address_state: null,
+//   office_address_city: null,
+//   office_address_pin: null,
+//   landline_office: null,
+// };
+
 const ViewProfile = ({ user }) => {
   const getCol = (title, value) => (
     <>
@@ -42,6 +51,16 @@ const ViewProfile = ({ user }) => {
     education_specialisation,
     stream,
     profession,
+    residential_address_line_1,
+    residential_address_state,
+    residential_address_city,
+    pin_code,
+    residential_landline,
+    office_address,
+    office_address_state,
+    office_address_city,
+    office_address_pin,
+    landline_office,
   } = user;
   return (
     <Container>
@@ -80,6 +99,24 @@ const ViewProfile = ({ user }) => {
       {getRow("Specialisation", education_specialisation)}
       {getRow("Stream", stream)}
       {getRow("Profession", profession, false)}
+
+      <ModalTitle text="Residence" />
+      {getRow("Address", residential_address_line_1)}
+      {getRow("City", residential_address_city)}
+      {getRow("State", residential_address_state)}
+      {getRow("Pin Code", pin_code)}
+      {email_address
+        ? getRow("Landline", formatMobileNumber(residential_landline))
+        : null}
+
+      <ModalTitle text="Office" />
+      {getRow("Address", office_address)}
+      {getRow("City", office_address_city)}
+      {getRow("State", office_address_state)}
+      {getRow("Pin Code", office_address_pin)}
+      {email_address
+        ? getRow("Landline", formatMobileNumber(landline_office))
+        : null}
       <Divider />
     </Container>
   );
