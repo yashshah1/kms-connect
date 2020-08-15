@@ -1,4 +1,8 @@
-import { GET_USER_SUCCESS, GET_USER_REQUEST } from "./userActionTypes";
+import {
+  GET_USER_SUCCESS,
+  GET_USER_REQUEST,
+  UPDATE_USER,
+} from "./userActionTypes";
 
 import { setError } from "../errorRedux/errorActions";
 
@@ -17,6 +21,23 @@ export const getUsers = () => async dispatch => {
     const response = await fetch("/api/users/");
     const data = await response.json();
     dispatch(getUserSuccess(data));
+  } catch (err) {
+    dispatch(setError(err));
+  }
+};
+
+export const updateUser = user => async dispatch => {
+  const reqData = { user };
+  try {
+    const response = await fetch("/api/users", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(reqData),
+    });
+    if (response.status !== 200) throw await response.json();
+    dispatch({ type: UPDATE_USER, payload: user });
   } catch (err) {
     dispatch(setError(err));
   }

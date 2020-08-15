@@ -13,10 +13,15 @@ const UsersTable = ({ getUsers, users }) => {
     if (users.length === 0) getUsers();
     // eslint-disable-next-line
   }, []);
-  const onlyFilterOptions = {
+  const baseFilterOptions = {
     filter: true,
     sort: false,
     display: false,
+    filterType: "dropdown",
+  };
+  const multiFilterOptions = {
+    ...baseFilterOptions,
+    filterType: "multiselect",
   };
   const columns = [
     {
@@ -36,37 +41,37 @@ const UsersTable = ({ getUsers, users }) => {
         sort: false,
       },
     },
-    { name: "gender", label: "Gender", options: onlyFilterOptions },
-    { name: "surname", label: "Surname", options: onlyFilterOptions },
+    { name: "gender", label: "Gender", options: baseFilterOptions },
+    { name: "surname", label: "Surname", options: multiFilterOptions },
     {
       name: "relationship_with_family_head",
       label: "Family Status",
-      options: onlyFilterOptions,
+      options: multiFilterOptions,
     },
     {
       name: "marital_status",
       label: "Marital Status",
-      options: onlyFilterOptions,
+      options: multiFilterOptions,
     },
     {
       name: "blood_group",
       label: "Blood Group",
-      options: onlyFilterOptions,
+      options: multiFilterOptions,
     },
     {
       name: "native_place",
       label: "Native Place",
-      options: onlyFilterOptions,
+      options: multiFilterOptions,
     },
     {
       name: "residential_address_state",
       label: "State",
-      options: onlyFilterOptions,
+      options: multiFilterOptions,
     },
     {
       name: "residential_address_city",
       label: "City",
-      options: onlyFilterOptions,
+      options: multiFilterOptions,
     },
   ];
   const data = users.map(user => ({
@@ -75,7 +80,7 @@ const UsersTable = ({ getUsers, users }) => {
   }));
   return (
     <Container>
-      <BaseTable columns={columns} data={data} options={{ filter: true }} />
+      <BaseTable columns={columns} data={data} />
     </Container>
   );
 };
