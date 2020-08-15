@@ -1,0 +1,66 @@
+.home-button {
+  line-height: 100px;
+  height: 100;
+  background: rgb(11, 125, 209);
+  background: linear-gradient(
+    90deg,
+    rgba(11, 125, 209, 1) 0%,
+    rgba(0, 212, 255, 1) 100%
+  );
+  color: white;
+  text-decoration: none;
+}
+
+.form__field {
+  font-family: inherit;
+  width: 100%;
+  border: 0;
+  border-bottom: 2px solid #545457;
+  outline: 0;
+  font-size: 1.1rem;
+  color: rgb(0, 0, 0);
+  padding: 20px 0 0 0;
+  background: transparent;
+  transition: border-color 0.5s;
+  text-transform: capitalize;
+}
+.form__field::placeholder {
+  color: transparent;
+}
+
+.form__field:placeholder-shown ~ .form__label {
+  font-size: 1.1rem;
+  cursor: text;
+  top: 20px;
+}
+
+.form__label {
+  position: absolute;
+  top: 0;
+  display: block;
+  transition: 0.5s;
+  font-size: 1rem;
+  color: #656bcf;
+}
+
+.form__field:focus {
+  font-weight: 300;
+  border-width: 3px;
+  border-image: linear-gradient(to right, #11998e, #38ef7d);
+  border-image-slice: 1;
+}
+
+.form__field:focus ~ .form__label {
+  position: absolute;
+  top: 0;
+  display: block;
+  transition: 0.5s;
+  font-size: 1rem;
+  color: #11998e;
+  font-weight: 700;
+}
+/* reset input */
+.form__field:required,
+.form__field:invalid {
+  box-shadow: none;
+}
