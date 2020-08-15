@@ -6,8 +6,8 @@ import isSubSequence from "../../utils/isSubSequence";
 const baseOptions = {
   download: false,
   print: false,
-  filter: false,
   viewColumns: false,
+  jumpToPage: true,
   selectableRows: "none",
   responsive: "standard",
   rowsPerPage: 50,
@@ -15,7 +15,7 @@ const baseOptions = {
   customSearch: (query, curr) => isSubSequence(query, curr[0]),
 };
 const BaseTable = ({ columns, data, options = {} }) => {
-  options = Object.assign(baseOptions, options);
+  options = { ...options, ...baseOptions };
   return <MUIDataTable columns={columns} options={options} data={data} />;
 };
 

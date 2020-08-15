@@ -30,13 +30,10 @@ const ViewFamily = props => {
   );
 };
 
-const mapStateToProps = state => {
-  console.log(state.auth.user.family_no);
-  return {
-    familyMembers: state.user.users.filter(
-      user => user.family_no === state.auth.user.family_no
-    ),
-  };
-};
+const mapStateToProps = state => ({
+  familyMembers: state.user.users.filter(
+    user => user.family_no === state.auth.user.family_no
+  ),
+});
 
 export default connect(mapStateToProps)(ViewFamily);

@@ -6,7 +6,7 @@ const cors = require("cors");
 require("dotenv").config();
 
 mongoose
-  .connect(process.env.KMMMS_MONGOURI, {
+  .connect(process.env.KMMMS_MONGOURI || "mongodb://localhost:27017", {
     useNewUrlParser: true,
     useCreateIndex: true,
     useFindAndModify: false,
