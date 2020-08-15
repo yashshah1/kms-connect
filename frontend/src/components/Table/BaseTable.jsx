@@ -7,6 +7,7 @@ const baseOptions = {
   download: false,
   print: false,
   viewColumns: false,
+  jumpToPage: true,
   selectableRows: "none",
   responsive: "standard",
   rowsPerPage: 50,
