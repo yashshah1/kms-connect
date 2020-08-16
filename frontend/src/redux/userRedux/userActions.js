@@ -22,7 +22,8 @@ export const getUsers = () => async dispatch => {
     const data = await response.json();
     dispatch(getUserSuccess(data));
   } catch (err) {
-    dispatch(setError(err));
+    alert(err.msg);
+    // dispatch(setError(err));
   }
 };
 
@@ -39,6 +40,7 @@ export const updateUser = user => async dispatch => {
     if (response.status !== 200) throw await response.json();
     dispatch({ type: UPDATE_USER, payload: user });
   } catch (err) {
-    dispatch(setError(err));
+    alert(err.msg);
+    // dispatch(setError(err));
   }
 };

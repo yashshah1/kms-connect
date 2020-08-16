@@ -27,6 +27,7 @@ export const login = (username, password) => async dispatch => {
 
     dispatch(loginSuccess(data));
   } catch (err) {
-    dispatch(setError(err));
+    alert(err.msg);
+    // dispatch(setError(err));
   }
 };
