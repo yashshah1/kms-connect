@@ -6,7 +6,7 @@ import { Container, Row, Col } from "reactstrap";
 
 const Home = props => {
   useEffect(() => {
-    props.getUsers();
+    if (props.count === 0) props.getUsers();
     // eslint-disable-next-line
   }, []);
   return (
@@ -55,4 +55,7 @@ const Home = props => {
   );
 };
 
-export default connect(null, { getUsers })(Home);
+const mapStateToProps = state => ({
+  count: state.user.users.length,
+});
+export default connect(mapStateToProps, { getUsers })(Home);
