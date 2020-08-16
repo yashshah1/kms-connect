@@ -8,6 +8,7 @@ import ViewFamily from "./components/ViewFamily";
 import BirthdayTable from "./components/Table/BirthdayTable";
 import NavBar from "./components/Navbar";
 import NotYetBuilt from "./components/NotYetBuilt";
+import ChangePassword from "./components/ChangePassword";
 import "./App.css";
 
 function App() {
@@ -40,6 +41,13 @@ function App() {
           exact
           path="/family"
           render={props => <ProtectedRoute {...props} Component={ViewFamily} />}
+        />
+        <Route
+          exact
+          path="/changepassword"
+          render={props => (
+            <ProtectedRoute {...props} Component={ChangePassword} />
+          )}
         />
 
         <Route exact path="/workinprogress" component={NotYetBuilt} />

@@ -91,4 +91,32 @@ router.post("/login", async (req, res) => {
   }
 });
 
+router.post("/changePassword", async (req, res) => {
+  const { username, oldPassword, newPassword } = req.body;
+  const user = await Auth.findOne({ username });
+
+  if (!user) return res.status(404).json({ msg: "User not found" });
+
+  if (!user.verified)
+    return res.status(404).json({ msg: "User not verified, contact admin" });
+
+  try {
+    bcrypt.compare(oldPassword, user.password, async (err, result) => {
+      if (err) throw "Error comparing password";
+      if (!result) return res.status(401).json({ msg: "Incorrect password" });
+
+      bcrypt.genSalt(10, (err, salt) => {
+        if (err) throw "Error generating salt";
+        bcrypt.hash(newPassword, salt, async (err, hash) => {
+          if (err) throw "Error Hashing";
+          await Auth.findOneAndUpdate({ username }, { password: hash });
+          res.status(200).json({ msg: "Changed Successfully" });
+        });
+      });
+    });
+  } catch (err) {
+    return res.status(500).json({ msg: err });
+  }
+});
+
 module.exports = router;

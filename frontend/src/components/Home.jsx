@@ -36,7 +36,16 @@ const Home = props => {
           <Link to="/family">
             <div className="home-button">
               <center>
-                <strong>View / Edit profile</strong>
+                <strong>View / Edit family</strong>
+              </center>
+            </div>
+          </Link>
+        </Col>
+        <Col>
+          <Link to="/changepassword">
+            <div className="home-button">
+              <center>
+                <strong>Change Password</strong>
               </center>
             </div>
           </Link>
