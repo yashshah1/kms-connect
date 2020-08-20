@@ -66,7 +66,7 @@ const Home = (props) => {
       >
         <div className="container">
           <span className="text-muted">
-            Proof of concept by <br />
+            Proof of Concept by <br />
             Yash Narendra Shah
           </span>
         </div>
