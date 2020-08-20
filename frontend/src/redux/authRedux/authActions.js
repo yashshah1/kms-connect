@@ -1,8 +1,8 @@
 import { LOGIN_SUCCESS, LOGOUT } from "./authActionTypes";
-
+// eslint-disable-next-line
 import { setError } from "../errorRedux/errorActions";
 
-export const loginSuccess = data => ({
+export const loginSuccess = (data) => ({
   type: LOGIN_SUCCESS,
   payload: data,
 });
@@ -11,7 +11,7 @@ export const logOut = () => ({
   type: LOGOUT,
 });
 
-export const login = (username, password) => async dispatch => {
+export const login = (username, password) => async (dispatch) => {
   const reqData = { username, password };
 
   try {

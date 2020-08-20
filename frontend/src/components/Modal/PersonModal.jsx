@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+import { connect } from "react-redux";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import { Person as PersonIcon } from "@material-ui/icons";
 import ViewProfile from "../ViewProfile";
@@ -35,4 +35,7 @@ const PersonModal = ({ user }) => {
   );
 };
 
-export default PersonModal;
+const mapStateToProps = (state, ownProps) =>
+  ownProps.user ? {} : { user: state.user.users[ownProps.userId] };
+
+export default connect(mapStateToProps, null)(PersonModal);

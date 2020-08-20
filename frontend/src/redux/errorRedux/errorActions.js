@@ -1,6 +1,6 @@
 import { SET_ERROR, HIDE_ERROR } from "./errorActionTypes";
 
-export const setError = error => ({
+export const setError = (error) => ({
   type: SET_ERROR,
   payload: error,
 });
