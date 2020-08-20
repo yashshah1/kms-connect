@@ -22,99 +22,174 @@ router.post("/", async (req, res) => {
       ).exec()
     ).toObject();
 
+    const iAmMale = user.gender === "Male";
+    const { relationships: newRelationships } = user;
+    const { relationships: oldRelationships } = oldUser;
+
     const changesMade = {
-      addedParents: [], // parents that the user has added
-      removedParents: [], // parents that the user has removed
+      addedFather: null,
+      removedFather: null,
+      addedMother: null,
+      removedMother: null,
+      addedBrothers: [],
+      removedBrothers: [],
+      addedSisters: [],
+      removedSisters: [],
       addedChildren: [],
       removedChildren: [],
-      addedSiblings: [],
-      removedSiblings: [],
     };
-    if (!oldUser.relationships) {
-      changesMade["addedParents"] = user.relationships.parents;
-      changesMade["addedChildren"] = user.relationships.children;
-      changesMade["addedSiblings"] = user.relationships.siblings;
-    } else {
-      for (const parent of user.relationships.parents)
-        if (!oldUser.relationships.parents.includes(parent))
-          changesMade["addedParents"].push(parent);
-
-      for (const parent of oldUser.relationships.parents)
-        if (!user.relationships.parents.includes(parent))
-          changesMade["removedParents"].push(parent);
-
-      for (const sibling of user.relationships.siblings)
-        if (!oldUser.relationships.siblings.includes(sibling))
-          changesMade["addedSiblings"].push(sibling);
-
-      for (const sibling of oldUser.relationships.siblings)
-        if (!user.relationships.siblings.includes(sibling))
-          changesMade["removedSiblings"].push(sibling);
-
-      for (const child of user.relationships.children)
-        if (!oldUser.relationships.children.includes(child))
-          changesMade["addedChildren"].push(child);
-
-      for (const child of oldUser.relationships.children)
-        if (!user.relationships.children.includes(child))
-          changesMade["removedChildren"].push(child);
+    if (oldRelationships.father !== newRelationships.father) {
+      changesMade["addedFather"] = newRelationships.father;
+      changesMade["removedFather"] = oldRelationships.father;
     }
 
-    for (const parent of changesMade.addedParents) {
+    if (oldRelationships.mother !== newRelationships.mother) {
+      changesMade["addedMother"] = newRelationships.mother;
+      changesMade["removedMother"] = oldRelationships.mother;
+    }
+
+    for (const brother of newRelationships.brothers)
+      if (!oldRelationships.brothers.includes(brother))
+        changesMade["addedBrothers"].push(brother);
+
+    for (const brother of oldRelationships.brothers)
+      if (!newRelationships.brothers.includes(brother))
+        changesMade["removedBrothers"].push(brother);
+
+    for (const sister of newRelationships.sisters)
+      if (!oldRelationships.sisters.includes(sister))
+        changesMade["addedSisters"].push(sister);
+
+    for (const sister of oldRelationships.sisters)
+      if (!newRelationships.sisters.includes(sister))
+        changesMade["removedSisters"].push(sister);
+
+    for (const child of newRelationships.children)
+      if (!oldRelationships.children.includes(child))
+        changesMade["addedChildren"].push(child);
+
+    for (const child of oldRelationships.children)
+      if (!newRelationships.children.includes(child))
+        changesMade["removedChildren"].push(child);
+    if (changesMade["addedFather"]) {
       promises.push(
         User.findOneAndUpdate(
-          { person_no: parent },
+          { person_no: changesMade["addedFather"] },
           { $addToSet: { "relationships.children": user.person_no } },
           { new: true }
         ).exec()
       );
     }
 
-    for (const parent of changesMade.removedParents) {
+    if (changesMade["removedFather"]) {
       promises.push(
         User.findOneAndUpdate(
-          { person_no: parent },
+          { person_no: changesMade["removedFather"] },
           { $pull: { "relationships.children": user.person_no } },
           { new: true }
         ).exec()
       );
     }
 
-    for (const child of changesMade.addedChildren) {
+    if (changesMade["addedMother"]) {
+      promises.push(
+        User.findOneAndUpdate(
+          { person_no: changesMade["addedMother"] },
+          { $addToSet: { "relationships.children": user.person_no } },
+          { new: true }
+        ).exec()
+      );
+    }
+
+    if (changesMade["removedMother"]) {
+      promises.push(
+        User.findOneAndUpdate(
+          { person_no: changesMade["removedMother"] },
+          { $pull: { "relationships.children": user.person_no } },
+          { new: true }
+        ).exec()
+      );
+    }
+
+    for (const child of changesMade["addedChildren"]) {
       promises.push(
         User.findOneAndUpdate(
           { person_no: child },
-          { $addToSet: { "relationships.parents": user.person_no } },
+          {
+            $set: {
+              [`relationships.${iAmMale ? "father" : "mother"}`]: user.person_no,
+            },
+          },
           { new: true }
         ).exec()
       );
     }
 
-    for (const child of changesMade.removedChildren) {
+    for (const child of changesMade["removedChildren"]) {
       promises.push(
         User.findOneAndUpdate(
           { person_no: child },
-          { $pull: { "relationships.parents": user.person_no } },
+          {
+            $set: {
+              [`relationships.${iAmMale ? "father" : "mother"}`]: null,
+            },
+          },
           { new: true }
         ).exec()
       );
     }
 
-    for (const sibling of changesMade.addedSiblings) {
+    for (const brother of changesMade["addedBrothers"]) {
       promises.push(
         User.findOneAndUpdate(
-          { person_no: sibling },
-          { $addToSet: { "relationships.siblings": user.person_no } },
+          { person_no: brother },
+          {
+            $addToSet: {
+              [`relationships.${iAmMale ? "brothers" : "sisters"}`]: user.person_no,
+            },
+          },
           { new: true }
         ).exec()
       );
     }
 
-    for (const sibling of changesMade.removedSiblings) {
+    for (const brother of changesMade["removedBrothers"]) {
       promises.push(
         User.findOneAndUpdate(
-          { person_no: sibling },
-          { $pull: { "relationships.siblings": user.person_no } },
+          { person_no: brother },
+          {
+            $pull: {
+              [`relationships.${iAmMale ? "brothers" : "sisters"}`]: user.person_no,
+            },
+          },
+          { new: true }
+        ).exec()
+      );
+    }
+
+    for (const sister of changesMade["addedSisters"]) {
+      promises.push(
+        User.findOneAndUpdate(
+          { person_no: sister },
+          {
+            $addToSet: {
+              [`relationships.${iAmMale ? "brothers" : "sisters"}`]: user.person_no,
+            },
+          },
+          { new: true }
+        ).exec()
+      );
+    }
+
+    for (const sister of changesMade["removedSisters"]) {
+      promises.push(
+        User.findOneAndUpdate(
+          { person_no: sister },
+          {
+            $pull: {
+              [`relationships.${iAmMale ? "brothers" : "sisters"}`]: user.person_no,
+            },
+          },
           { new: true }
         ).exec()
       );

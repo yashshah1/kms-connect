@@ -28,7 +28,6 @@ export const getUsers = () => async (dispatch) => {
 
 export const updateUser = (user) => async (dispatch) => {
   const reqData = { user };
-  console.log(reqData);
   try {
     const response = await fetch("/api/users", {
       method: "POST",

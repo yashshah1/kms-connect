@@ -32,8 +32,11 @@ const EditProfileModalFunction = (props) => {
   const [isOpen, setIsOpen] = useState(false);
   const [changed, setChanged] = useState(false);
 
-  const [parentInput, setParentInput] = useState("");
-  const [siblingInput, setSiblingInput] = useState("");
+  const [fatherInputItems, setFatherInputItems] = useState(props.users);
+  const [motherInputItems, setMotherInputItems] = useState(props.users);
+
+  const [brotherInput, setBrotherInput] = useState("");
+  const [sisterInput, setSisterInput] = useState("");
   const [childInput, setChildInput] = useState("");
 
   const getFilteredItems = (items, selectedItems, inputValue) =>
@@ -42,31 +45,56 @@ const EditProfileModalFunction = (props) => {
         selectedItems.indexOf(item.fullname) < 0 &&
         isSubSequence(inputValue, item.fullname)
     );
-
-  const parentMultipleSelection = useMultipleSelection({
-    initialSelectedItems: user.relationships.parents,
+  const fatherComboBox = useCombobox({
+    items: fatherInputItems,
+    onInputValueChange: ({ inputValue }) => {
+      setFatherInputItems(
+        props.users.filter((item) => isSubSequence(inputValue, item.fullname))
+      );
+      setChanged(true);
+    },
+    itemToString: (item) => (item ? item.fullname : ""),
+    initialSelectedItem: user.relationships.father,
   });
 
-  const parentComboBox = useCombobox({
-    parentInput,
+  const motherComboBox = useCombobox({
+    items: motherInputItems,
+    onInputValueChange: ({ inputValue }) => {
+      setMotherInputItems(
+        props.users.filter((item) => isSubSequence(inputValue, item.fullname))
+      );
+      setChanged(true);
+    },
+    itemToString: (item) => (item ? item.fullname : ""),
+    initialSelectedItem: user.relationships.mother,
+  });
+
+  const brotherMultipleSelection = useMultipleSelection({
+    initialSelectedItems: user.relationships.brothers,
+    itemToString: (item) => (item ? item.fullname : ""),
+  });
+
+  const brotherComboBox = useCombobox({
+    brotherInput,
     items: getFilteredItems(
       props.users,
-      parentMultipleSelection.selectedItems,
-      parentInput
+      brotherMultipleSelection.selectedItems,
+      brotherInput
     ),
     onStateChange: ({ inputValue, type, selectedItem }) => {
       switch (type) {
         case useCombobox.stateChangeTypes.InputChange:
           setChanged(true);
-          setParentInput(inputValue);
+          setBrotherInput(inputValue);
           break;
         case useCombobox.stateChangeTypes.InputKeyDownEnter:
         case useCombobox.stateChangeTypes.ItemClick:
         case useCombobox.stateChangeTypes.InputBlur:
           if (selectedItem) {
-            setParentInput("");
-            parentMultipleSelection.addSelectedItem(selectedItem);
-            parentComboBox.selectItem(null);
+            setBrotherInput("");
+            setChanged(true);
+            brotherMultipleSelection.addSelectedItem(selectedItem);
+            brotherComboBox.selectItem(null);
           }
           break;
         default:
@@ -76,30 +104,32 @@ const EditProfileModalFunction = (props) => {
     itemToString: (item) => item || "",
   });
 
-  const siblingMultipleSelection = useMultipleSelection({
-    initialSelectedItems: user.relationships.siblings,
+  const sisterMultipleSelection = useMultipleSelection({
+    initialSelectedItems: user.relationships.sisters,
+    itemToString: (item) => (item ? item.fullname : ""),
   });
 
-  const siblingComboBox = useCombobox({
-    siblingInput,
+  const sisterComboBox = useCombobox({
+    sisterInput,
     items: getFilteredItems(
       props.users,
-      siblingMultipleSelection.selectedItems,
-      siblingInput
+      sisterMultipleSelection.selectedItems,
+      sisterInput
     ),
     onStateChange: ({ inputValue, type, selectedItem }) => {
       switch (type) {
         case useCombobox.stateChangeTypes.InputChange:
           setChanged(true);
-          setSiblingInput(inputValue);
+          setSisterInput(inputValue);
           break;
         case useCombobox.stateChangeTypes.InputKeyDownEnter:
         case useCombobox.stateChangeTypes.ItemClick:
         case useCombobox.stateChangeTypes.InputBlur:
           if (selectedItem) {
-            setSiblingInput("");
-            siblingMultipleSelection.addSelectedItem(selectedItem);
-            siblingComboBox.selectItem(null);
+            setChanged(true);
+            setSisterInput("");
+            sisterMultipleSelection.addSelectedItem(selectedItem);
+            sisterComboBox.selectItem(null);
           }
           break;
         default:
@@ -111,6 +141,7 @@ const EditProfileModalFunction = (props) => {
 
   const childMultipleSelection = useMultipleSelection({
     initialSelectedItems: user.relationships.children,
+    itemToString: (item) => (item ? item.fullname : ""),
   });
 
   const childComboBox = useCombobox({
@@ -130,6 +161,7 @@ const EditProfileModalFunction = (props) => {
         case useCombobox.stateChangeTypes.ItemClick:
         case useCombobox.stateChangeTypes.InputBlur:
           if (selectedItem) {
+            setChanged(true);
             setChildInput("");
             childMultipleSelection.addSelectedItem(selectedItem);
             childComboBox.selectItem(null);
@@ -190,15 +222,19 @@ const EditProfileModalFunction = (props) => {
         fullname,
         relationships: {
           ...user.relationships,
-          parents: parentMultipleSelection.selectedItems.map(
+          brothers: brotherMultipleSelection.selectedItems.map(
             (item) => item.person_no
           ),
-          siblings: siblingMultipleSelection.selectedItems.map(
+          sisters: sisterMultipleSelection.selectedItems.map(
             (item) => item.person_no
           ),
           children: childMultipleSelection.selectedItems.map(
             (item) => item.person_no
           ),
+          father:
+            fatherInputItems.length === 1 ? fatherInputItems[0].person_no : null,
+          mother:
+            motherInputItems.length === 1 ? motherInputItems[0].person_no : null,
         },
       };
       props.updateUser(finalUser);
@@ -600,46 +636,16 @@ const EditProfileModalFunction = (props) => {
             </FormGroup>
 
             <ModalTitle text="Relationships" />
+            {/* Father */}
             <FormGroup>
-              <Label {...parentComboBox.getLabelProps()}>
-                <strong>Parents</strong>
-              </Label>
-              <div>
-                {parentMultipleSelection.selectedItems.map((selectedItem, index) => (
-                  <span
-                    key={`selected-item-${index}`}
-                    {...parentMultipleSelection.getSelectedItemProps({
-                      selectedItem,
-                      index,
-                    })}
-                  >
-                    {selectedItem.fullname}
-                    <span
-                      onClick={() => {
-                        parentMultipleSelection.removeSelectedItem(selectedItem);
-                        setChanged(true);
-                      }}
-                      style={{ cursor: "pointer" }}
-                    >
-                      &#10005;
-                    </span>
-                  </span>
-                ))}
-                <div {...parentComboBox.getComboboxProps()}>
-                  <Input
-                    {...parentComboBox.getInputProps(
-                      parentMultipleSelection.getDropdownProps({
-                        preventKeyAction: parentComboBox.isOpen,
-                      })
-                    )}
-                  />
-                </div>
-              </div>
+              <Label {...fatherComboBox.getLabelProps()}>Father</Label>
+              <Input {...fatherComboBox.getInputProps()} />
               <ul
-                {...parentComboBox.getMenuProps()}
+                {...fatherComboBox.getMenuProps()}
                 style={{
                   maxHeight: "200px",
                   overflowY: "auto",
+                  width: "300px",
                   margin: 0,
                   borderTop: 0,
                   background: "white",
@@ -649,20 +655,16 @@ const EditProfileModalFunction = (props) => {
                   padding: 0,
                 }}
               >
-                {parentComboBox.isOpen &&
-                  getFilteredItems(
-                    props.users,
-                    parentMultipleSelection.selectedItems,
-                    parentInput
-                  ).map((item, index) => (
+                {fatherComboBox.isOpen &&
+                  fatherInputItems.map((item, index) => (
                     <li
                       style={
-                        parentComboBox.highlightedIndex === index
+                        fatherComboBox.highlightedIndex === index
                           ? { backgroundColor: "#bde4ff" }
                           : {}
                       }
                       key={`${item}${index}`}
-                      {...parentComboBox.getItemProps({ item, index })}
+                      {...fatherComboBox.getItemProps({ item, index })}
                     >
                       {item.fullname}
                     </li>
@@ -670,16 +672,51 @@ const EditProfileModalFunction = (props) => {
               </ul>
             </FormGroup>
 
+            {/* Mother */}
             <FormGroup>
-              <Label {...siblingComboBox.getLabelProps()}>
-                <strong>Siblings</strong>
-              </Label>
+              <Label {...motherComboBox.getLabelProps()}>Mother</Label>
+              <Input {...motherComboBox.getInputProps()} />
+              <ul
+                {...motherComboBox.getMenuProps()}
+                style={{
+                  maxHeight: "200px",
+                  overflowY: "auto",
+                  width: "300px",
+                  margin: 0,
+                  borderTop: 0,
+                  background: "white",
+                  position: "absolute",
+                  zIndex: 1000,
+                  listStyle: "none",
+                  padding: 0,
+                }}
+              >
+                {motherComboBox.isOpen &&
+                  motherInputItems.map((item, index) => (
+                    <li
+                      style={
+                        motherComboBox.highlightedIndex === index
+                          ? { backgroundColor: "#bde4ff" }
+                          : {}
+                      }
+                      key={`${item}${index}`}
+                      {...motherComboBox.getItemProps({ item, index })}
+                    >
+                      {item.fullname}
+                    </li>
+                  ))}
+              </ul>
+            </FormGroup>
+
+            {/* brothers */}
+            <FormGroup>
+              <Label {...brotherComboBox.getLabelProps()}>Brothers</Label>
               <div>
-                {siblingMultipleSelection.selectedItems.map(
+                {brotherMultipleSelection.selectedItems.map(
                   (selectedItem, index) => (
                     <span
                       key={`selected-item-${index}`}
-                      {...siblingMultipleSelection.getSelectedItemProps({
+                      {...brotherMultipleSelection.getSelectedItemProps({
                         selectedItem,
                         index,
                       })}
@@ -687,7 +724,7 @@ const EditProfileModalFunction = (props) => {
                       {selectedItem.fullname}
                       <span
                         onClick={() => {
-                          siblingMultipleSelection.removeSelectedItem(selectedItem);
+                          brotherMultipleSelection.removeSelectedItem(selectedItem);
                           setChanged(true);
                         }}
                         style={{ cursor: "pointer" }}
@@ -697,18 +734,18 @@ const EditProfileModalFunction = (props) => {
                     </span>
                   )
                 )}
-                <div {...siblingComboBox.getComboboxProps()}>
+                <div {...brotherComboBox.getComboboxProps()}>
                   <Input
-                    {...siblingComboBox.getInputProps(
-                      siblingMultipleSelection.getDropdownProps({
-                        preventKeyAction: siblingComboBox.isOpen,
+                    {...brotherComboBox.getInputProps(
+                      brotherMultipleSelection.getDropdownProps({
+                        preventKeyAction: brotherComboBox.isOpen,
                       })
                     )}
                   />
                 </div>
               </div>
               <ul
-                {...siblingComboBox.getMenuProps()}
+                {...brotherComboBox.getMenuProps()}
                 style={{
                   maxHeight: "200px",
                   overflowY: "auto",
@@ -721,20 +758,20 @@ const EditProfileModalFunction = (props) => {
                   padding: 0,
                 }}
               >
-                {siblingComboBox.isOpen &&
+                {brotherComboBox.isOpen &&
                   getFilteredItems(
                     props.users,
-                    siblingMultipleSelection.selectedItems,
-                    siblingInput
+                    brotherMultipleSelection.selectedItems,
+                    brotherInput
                   ).map((item, index) => (
                     <li
                       style={
-                        siblingComboBox.highlightedIndex === index
+                        brotherComboBox.highlightedIndex === index
                           ? { backgroundColor: "#bde4ff" }
                           : {}
                       }
                       key={`${item}${index}`}
-                      {...siblingComboBox.getItemProps({ item, index })}
+                      {...brotherComboBox.getItemProps({ item, index })}
                     >
                       {item.fullname}
                     </li>
@@ -742,10 +779,78 @@ const EditProfileModalFunction = (props) => {
               </ul>
             </FormGroup>
 
+            {/* sisters */}
             <FormGroup>
-              <Label {...childComboBox.getLabelProps()}>
-                <strong>Children</strong>
-              </Label>
+              <Label {...sisterComboBox.getLabelProps()}>Sisters</Label>
+              <div>
+                {sisterMultipleSelection.selectedItems.map((selectedItem, index) => (
+                  <span
+                    key={`selected-item-${index}`}
+                    {...sisterMultipleSelection.getSelectedItemProps({
+                      selectedItem,
+                      index,
+                    })}
+                  >
+                    {selectedItem.fullname}
+                    <span
+                      onClick={() => {
+                        sisterMultipleSelection.removeSelectedItem(selectedItem);
+                        setChanged(true);
+                      }}
+                      style={{ cursor: "pointer" }}
+                    >
+                      &#10005;
+                    </span>
+                  </span>
+                ))}
+                <div {...sisterComboBox.getComboboxProps()}>
+                  <Input
+                    {...sisterComboBox.getInputProps(
+                      sisterMultipleSelection.getDropdownProps({
+                        preventKeyAction: sisterComboBox.isOpen,
+                      })
+                    )}
+                  />
+                </div>
+              </div>
+              <ul
+                {...sisterComboBox.getMenuProps()}
+                style={{
+                  maxHeight: "200px",
+                  overflowY: "auto",
+                  margin: 0,
+                  borderTop: 0,
+                  background: "white",
+                  position: "absolute",
+                  zIndex: 1000,
+                  listStyle: "none",
+                  padding: 0,
+                }}
+              >
+                {sisterComboBox.isOpen &&
+                  getFilteredItems(
+                    props.users,
+                    sisterMultipleSelection.selectedItems,
+                    sisterInput
+                  ).map((item, index) => (
+                    <li
+                      style={
+                        sisterComboBox.highlightedIndex === index
+                          ? { backgroundColor: "#bde4ff" }
+                          : {}
+                      }
+                      key={`${item}${index}`}
+                      {...sisterComboBox.getItemProps({ item, index })}
+                    >
+                      {item.fullname}
+                    </li>
+                  ))}
+              </ul>
+            </FormGroup>
+
+            {/* children */}
+            <FormGroup>
+              <Label {...childComboBox.getLabelProps()}>Children</Label>
               <div>
                 {childMultipleSelection.selectedItems.map((selectedItem, index) => (
                   <span
@@ -832,31 +937,31 @@ const EditProfileModalFunction = (props) => {
   );
 };
 
-const mapStateToProps = (state, ownProps) => {
+const mapStateToProps = (state, { user: userFromProps }) => {
   const users = Object.values(state.user.users).map((user) => ({
     person_no: user.person_no,
     fullname: user.fullname,
   }));
   const user = {
-    ...ownProps.user,
+    ...userFromProps,
     relationships: {
-      ...ownProps.user.relationships,
-      siblings: ownProps.user.relationships.siblings.map((sibling) => {
-        const tmpUser = getUserFromUserId(sibling);
+      ...userFromProps.relationships,
+      father: getUserFromUserId(userFromProps.relationships.father),
+      mother: getUserFromUserId(userFromProps.relationships.mother),
+      brothers: userFromProps.relationships.brothers.map((brother) => {
+        const tmpUser = getUserFromUserId(brother);
         return { person_no: tmpUser.person_no, fullname: tmpUser.fullname };
       }),
-      parents: ownProps.user.relationships.parents.map((parent) => {
-        const tmpUser = getUserFromUserId(parent);
+      sisters: userFromProps.relationships.sisters.map((sister) => {
+        const tmpUser = getUserFromUserId(sister);
         return { person_no: tmpUser.person_no, fullname: tmpUser.fullname };
       }),
-
-      children: ownProps.user.relationships.children.map((child) => {
+      children: userFromProps.relationships.children.map((child) => {
         const tmpUser = getUserFromUserId(child);
         return { person_no: tmpUser.person_no, fullname: tmpUser.fullname };
       }),
     },
   };
-
   return { users, user };
 };
 

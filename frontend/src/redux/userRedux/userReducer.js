@@ -37,7 +37,6 @@ const userReducer = (state = initialUserState, action) => {
     case UPDATE_USERS:
       const updates = {};
       for (const user of action.payload) updates[user.person_no] = user;
-      console.log(updates);
       return {
         ...state,
         users: {

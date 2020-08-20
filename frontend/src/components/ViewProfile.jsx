@@ -9,9 +9,9 @@ import { getUserFromUserId } from "../redux/utils";
 
 const ViewProfile = ({ user }) => {
   // eslint-disable-next-line
-  const [siblingCollapse, setSiblingCollapse] = useState(false);
-  const [parentCollapse, setParentCollapse] = useState(false);
-  const [childrenCollapse, setChildrenCollapse] = useState(false);
+  const [brothersCollapse, setBrothersCollapse] = useState(true);
+  const [sistersCollapse, setSistersCollapse] = useState(true);
+  const [childrenCollapse, setChildrenCollapse] = useState(true);
   const getCol = (title, value) => (
     <>
       <Col>{title}</Col>
@@ -26,20 +26,32 @@ const ViewProfile = ({ user }) => {
     </>
   );
 
+  const getSingleRelationshipRow = (userId, relationship) => {
+    const user = getUserFromUserId(userId);
+    return (
+      <Row>
+        <Col>{relationship}</Col>
+        <Col>{user.fullname}</Col>
+        <Col>
+          <center>
+            <PersonModal user={user} />
+          </center>
+        </Col>
+      </Row>
+    );
+  };
+
   const getRelationshipRow = (userId) => {
     const user = getUserFromUserId(userId);
     return (
-      <>
-        <Row key={user._id}>
-          <Col>{user.fullname}</Col>
-          <Col>
-            <center>
-              <PersonModal user={user} />
-            </center>
-          </Col>
-        </Row>
-        <hr />
-      </>
+      <Row key={user._id}>
+        <Col>{user.fullname}</Col>
+        <Col>
+          <center>
+            <PersonModal user={user} />
+          </center>
+        </Col>
+      </Row>
     );
   };
 
@@ -76,7 +88,7 @@ const ViewProfile = ({ user }) => {
     office_address_city,
     office_address_pin,
     landline_office,
-    relationships = {},
+    relationships,
   } = user;
   return (
     <Container>
@@ -135,51 +147,74 @@ const ViewProfile = ({ user }) => {
 
       <ModalTitle text="Relationships" />
       <ListGroup>
-        <ListGroupItem
-          style={{ cursor: "pointer" }}
-          action
-          onClick={() => setSiblingCollapse(!siblingCollapse)}
-          disabled={!(relationships.siblings && relationships.siblings.length > 0)}
-        >
-          Siblings
-        </ListGroupItem>
-        <Collapse isOpen={siblingCollapse}>
-          {relationships.siblings ? (
-            <Container>
-              {relationships.siblings.map((sibling) => getRelationshipRow(sibling))}
-            </Container>
-          ) : null}
-        </Collapse>
-        <ListGroupItem
-          style={{ cursor: "pointer" }}
-          disabled={!(relationships.parents && relationships.parents.length > 0)}
-          onClick={() => setParentCollapse(!parentCollapse)}
-          action
-        >
-          Parents
-        </ListGroupItem>
-        <Collapse isOpen={parentCollapse}>
-          {relationships.parents ? (
-            <Container>
-              {relationships.parents.map((parent) => getRelationshipRow(parent))}
-            </Container>
-          ) : null}
-        </Collapse>
-        <ListGroupItem
-          style={{ cursor: "pointer" }}
-          disabled={!(relationships.children && relationships.children.length > 0)}
-          onClick={() => setChildrenCollapse(!childrenCollapse)}
-          action
-        >
-          Children
-        </ListGroupItem>
-        <Collapse isOpen={childrenCollapse}>
-          {relationships.children ? (
-            <Container>
-              {relationships.children.map((child) => getRelationshipRow(child))}
-            </Container>
-          ) : null}
-        </Collapse>
+        {relationships.father ? (
+          <ListGroupItem style={{ cursor: "pointer" }} action>
+            {getSingleRelationshipRow(relationships.father, "Father")}
+          </ListGroupItem>
+        ) : null}
+        {relationships.mother ? (
+          <ListGroupItem style={{ cursor: "pointer" }} action>
+            {getSingleRelationshipRow(relationships.mother, "Mother")}
+          </ListGroupItem>
+        ) : null}
+        {relationships.brothers && relationships.brothers.length > 0 ? (
+          <>
+            <ListGroupItem
+              style={{ cursor: "pointer" }}
+              onClick={() => setBrothersCollapse(!brothersCollapse)}
+              action
+            >
+              Brothers
+            </ListGroupItem>
+            <Collapse isOpen={brothersCollapse}>
+              {relationships.brothers ? (
+                <Container>
+                  {relationships.brothers.map((brother) =>
+                    getRelationshipRow(brother)
+                  )}
+                </Container>
+              ) : null}
+            </Collapse>
+          </>
+        ) : null}
+
+        {relationships.sisters && relationships.sisters.length > 0 ? (
+          <>
+            <ListGroupItem
+              style={{ cursor: "pointer" }}
+              onClick={() => setSistersCollapse(!sistersCollapse)}
+              action
+            >
+              Sisters
+            </ListGroupItem>
+            <Collapse isOpen={sistersCollapse}>
+              {relationships.sisters ? (
+                <Container>
+                  {relationships.sisters.map((sister) => getRelationshipRow(sister))}
+                </Container>
+              ) : null}
+            </Collapse>
+          </>
+        ) : null}
+
+        {relationships.children && relationships.children.length > 0 ? (
+          <>
+            <ListGroupItem
+              style={{ cursor: "pointer" }}
+              onClick={() => setChildrenCollapse(!childrenCollapse)}
+              action
+            >
+              Children
+            </ListGroupItem>
+            <Collapse isOpen={childrenCollapse}>
+              {relationships.children ? (
+                <Container>
+                  {relationships.children.map((child) => getRelationshipRow(child))}
+                </Container>
+              ) : null}
+            </Collapse>
+          </>
+        ) : null}
       </ListGroup>
     </Container>
   );
