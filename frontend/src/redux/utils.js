@@ -1,3 +1,4 @@
 import store from "./store";
 
-export const getUserFromUserId = (userId) => store.getState().user.users[userId];
+export const getUserFromUserId = (userId) =>
+  userId > 10001 ? store.getState().user.users[userId] : null;
