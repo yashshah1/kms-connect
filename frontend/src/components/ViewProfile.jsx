@@ -5,6 +5,7 @@ import Moment from "react-moment";
 import ModalTitle from "./Modal/ModalTitle";
 import Divider from "./Modal/Divider";
 import PersonModal from "./Modal/PersonModal";
+import FamilyModal from "./Modal/FamilyModal";
 import { getUserFromUserId } from "../redux/utils";
 
 const ViewProfile = ({ user }) => {
@@ -35,6 +36,7 @@ const ViewProfile = ({ user }) => {
         <Col>
           <center>
             <PersonModal user={user} />
+            <FamilyModal family_no={user.family_no} />
           </center>
         </Col>
       </Row>
@@ -49,6 +51,7 @@ const ViewProfile = ({ user }) => {
         <Col>
           <center>
             <PersonModal user={user} />
+            <FamilyModal family_no={user.family_no} />
           </center>
         </Col>
       </Row>

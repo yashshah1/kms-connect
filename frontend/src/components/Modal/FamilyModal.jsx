@@ -11,7 +11,7 @@ import {
   Row,
   Col,
 } from "reactstrap";
-import { MenuOpen as MenuOpenIcon } from "@material-ui/icons";
+import { Group as GroupIcon } from "@material-ui/icons";
 
 import CustomCallIcon from "../Table/CustomCallIcon";
 import PersonModal from "./PersonModal";
@@ -25,7 +25,7 @@ const FamilyModal = (props) => {
 
   return (
     <>
-      <MenuOpenIcon
+      <GroupIcon
         color="primary"
         aria-label="View Family"
         style={{ margin: 5, cursor: "pointer" }}
