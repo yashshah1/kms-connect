@@ -11,12 +11,12 @@ import {
   FormFeedback,
 } from "reactstrap";
 
-const ChangePassword = props => {
+const ChangePassword = (props) => {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [repeatNewPassword, setRepeatNewPassword] = useState("");
 
-  const onSubmit = async e => {
+  const onSubmit = async (e) => {
     e.persist();
     e.preventDefault();
     const reqData = {
@@ -38,7 +38,7 @@ const ChangePassword = props => {
     setRepeatNewPassword("");
   };
 
-  const isFieldValid = value => value.trim().length !== 0;
+  const isFieldValid = (value) => value.trim().length !== 0;
   return (
     <Container>
       <Form onSubmit={onSubmit}>
@@ -48,7 +48,7 @@ const ChangePassword = props => {
             type="password"
             name="oldPassword"
             placeholder="Old Password"
-            onChange={e => setOldPassword(e.target.value)}
+            onChange={(e) => setOldPassword(e.target.value)}
             value={oldPassword}
             invalid={!isFieldValid(oldPassword)}
             required
@@ -62,7 +62,7 @@ const ChangePassword = props => {
             type="password"
             name="newPassword"
             placeholder="New Password"
-            onChange={e => setNewPassword(e.target.value)}
+            onChange={(e) => setNewPassword(e.target.value)}
             value={newPassword}
             required
           />
@@ -73,7 +73,7 @@ const ChangePassword = props => {
             type="password"
             name="repeatNewPassword"
             placeholder="Repeat New Password"
-            onChange={e => setRepeatNewPassword(e.target.value)}
+            onChange={(e) => setRepeatNewPassword(e.target.value)}
             value={repeatNewPassword}
             invalid={newPassword !== repeatNewPassword}
             required
@@ -97,7 +97,7 @@ const ChangePassword = props => {
   );
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   username: state.auth.user.person_no.toString(),
 });
 

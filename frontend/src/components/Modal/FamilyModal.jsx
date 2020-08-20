@@ -16,7 +16,7 @@ import { MenuOpen as MenuOpenIcon } from "@material-ui/icons";
 import CustomCallIcon from "../Table/CustomCallIcon";
 import PersonModal from "./PersonModal";
 
-const FamilyModal = props => {
+const FamilyModal = (props) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggle = () => {
@@ -34,7 +34,7 @@ const FamilyModal = props => {
       <Modal isOpen={isOpen} toggle={toggle} scrollable={true}>
         <ModalHeader toggle={toggle}>Family Members</ModalHeader>
         <ModalBody>
-          {props.familyMembers.map(member => (
+          {props.familyMembers.map((member) => (
             <Container key={member._id}>
               <Row>
                 <Col>
@@ -63,8 +63,8 @@ const FamilyModal = props => {
 };
 
 const mapStateToProps = (state, ownProps) => ({
-  familyMembers: state.user.users.filter(
-    user => user.family_no === ownProps.family_no
+  familyMembers: Object.values(state.user.users).filter(
+    (user) => user.family_no === ownProps.family_no
   ),
 });
 

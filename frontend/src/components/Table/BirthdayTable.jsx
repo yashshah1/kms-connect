@@ -7,9 +7,9 @@ import BaseTable from "./BaseTable";
 import ActionButtons from "./ActionButtons";
 import Moment from "moment";
 
-const BirthdayTable = ({ getUsers, users, birthdays }) => {
+const BirthdayTable = ({ getUsers, count, birthdays }) => {
   useEffect(() => {
-    if (users.length === 0) getUsers();
+    if (count === 0) getUsers();
     // eslint-disable-next-line
   }, []);
   const columns = [
@@ -31,7 +31,7 @@ const BirthdayTable = ({ getUsers, users, birthdays }) => {
       },
     },
   ];
-  const data = birthdays.map(user => ({
+  const data = birthdays.map((user) => ({
     ...user,
     actions: <ActionButtons user={user} />,
   }));
@@ -42,11 +42,10 @@ const BirthdayTable = ({ getUsers, users, birthdays }) => {
   );
 };
 
-const mapStateToProps = state => ({
-  users: state.user.users,
-  birthdays: state.user.users.filter(
-    user =>
-      Moment().format("DDMM") === Moment(user.date_of_birth).format("DDMM")
+const mapStateToProps = (state) => ({
+  count: Object.values(state.user.users).length,
+  birthdays: Object.values(state.user.users).filter(
+    (user) => Moment().format("DDMM") === Moment(user.date_of_birth).format("DDMM")
   ),
 });
 

@@ -1,4 +1,4 @@
-const joinString = string => string.split(" ").join("");
+const joinString = (string) => string.split(" ").join("");
 
 const isSubSequence = (small, big) => {
   small = joinString(small.toLowerCase());

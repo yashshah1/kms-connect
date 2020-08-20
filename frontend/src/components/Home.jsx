@@ -4,7 +4,7 @@ import { getUsers } from "../redux/userRedux/userActions";
 import { Link } from "react-router-dom";
 import { Container, Row, Col } from "reactstrap";
 
-const Home = props => {
+const Home = (props) => {
   useEffect(() => {
     if (props.count === 0) props.getUsers();
     // eslint-disable-next-line
@@ -55,7 +55,7 @@ const Home = props => {
   );
 };
 
-const mapStateToProps = state => ({
-  count: state.user.users.length,
+const mapStateToProps = (state) => ({
+  count: Object.values(state.user.users).length,
 });
 export default connect(mapStateToProps, { getUsers })(Home);

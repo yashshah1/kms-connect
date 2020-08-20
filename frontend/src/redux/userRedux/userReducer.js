@@ -2,10 +2,11 @@ import {
   GET_USER_SUCCESS,
   GET_USER_REQUEST,
   UPDATE_USER,
+  UPDATE_USERS,
 } from "./userActionTypes";
 
 const initialUserState = {
-  users: [],
+  users: {},
   loading: false,
 };
 
@@ -26,13 +27,25 @@ const userReducer = (state = initialUserState, action) => {
 
     case UPDATE_USER:
       const { person_no } = action.payload;
-      const newUsers = state.users.map(user =>
-        user.person_no === person_no ? action.payload : user
-      );
       return {
         ...state,
-        users: newUsers,
+        users: {
+          ...state.users,
+          [person_no]: action.payload,
+        },
       };
+    case UPDATE_USERS:
+      const updates = {};
+      for (const user of action.payload) updates[user.person_no] = user;
+      console.log(updates);
+      return {
+        ...state,
+        users: {
+          ...state.users,
+          ...updates,
+        },
+      };
+
     default:
       return state;
   }

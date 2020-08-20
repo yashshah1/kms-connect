@@ -39,6 +39,7 @@ const UsersTable = ({ getUsers, users }) => {
       options: {
         filter: false,
         sort: false,
+        download: false,
       },
     },
     { name: "gender", label: "Gender", options: baseFilterOptions },
@@ -64,17 +65,17 @@ const UsersTable = ({ getUsers, users }) => {
       options: multiFilterOptions,
     },
     {
-      name: "residential_address_state",
-      label: "State",
-      options: multiFilterOptions,
-    },
-    {
       name: "residential_address_city",
       label: "City",
       options: multiFilterOptions,
     },
+    {
+      name: "residential_address_state",
+      label: "State",
+      options: multiFilterOptions,
+    },
   ];
-  const data = users.map(user => ({
+  const data = Object.values(users).map((user) => ({
     ...user,
     actions: <ActionButtons user={user} />,
   }));
@@ -85,7 +86,7 @@ const UsersTable = ({ getUsers, users }) => {
   );
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   users: state.user.users,
   loading: state.user.loading,
 });

@@ -21,31 +21,29 @@ function App() {
         <Route
           exact
           path="/home"
-          render={props => <ProtectedRoute {...props} Component={Home} />}
+          render={(props) => <ProtectedRoute {...props} Component={Home} />}
         />
         <Route
           exact
           path="/members"
-          render={props => <ProtectedRoute {...props} Component={UsersTable} />}
+          render={(props) => <ProtectedRoute {...props} Component={UsersTable} />}
         />
         {/* <Route exact path="/members" component={UsersTable} /> */}
 
         <Route
           exact
           path="/birthdays"
-          render={props => (
-            <ProtectedRoute {...props} Component={BirthdayTable} />
-          )}
+          render={(props) => <ProtectedRoute {...props} Component={BirthdayTable} />}
         />
         <Route
           exact
           path="/family"
-          render={props => <ProtectedRoute {...props} Component={ViewFamily} />}
+          render={(props) => <ProtectedRoute {...props} Component={ViewFamily} />}
         />
         <Route
           exact
           path="/changepassword"
-          render={props => (
+          render={(props) => (
             <ProtectedRoute {...props} Component={ChangePassword} />
           )}
         />

@@ -1,25 +1,21 @@
-import React from "react";
-
-import { Container, Row, Col } from "reactstrap";
+import React, { useState } from "react";
+import { Container, Row, Col, ListGroup, ListGroupItem, Collapse } from "reactstrap";
 import Moment from "react-moment";
 
 import ModalTitle from "./Modal/ModalTitle";
 import Divider from "./Modal/Divider";
-
-// const user = {
-//   residential_landline: "022 - 27465264",
-//   office_address: null,
-//   office_address_state: null,
-//   office_address_city: null,
-//   office_address_pin: null,
-//   landline_office: null,
-// };
+import PersonModal from "./Modal/PersonModal";
+import { getUserFromUserId } from "../redux/utils";
 
 const ViewProfile = ({ user }) => {
+  // eslint-disable-next-line
+  const [siblingCollapse, setSiblingCollapse] = useState(false);
+  const [parentCollapse, setParentCollapse] = useState(false);
+  const [childrenCollapse, setChildrenCollapse] = useState(false);
   const getCol = (title, value) => (
     <>
       <Col>{title}</Col>
-      <Col>{value}</Col>
+      <Col xs="6">{value}</Col>
     </>
   );
 
@@ -30,9 +26,28 @@ const ViewProfile = ({ user }) => {
     </>
   );
 
-  const formatMobileNumber = number => <a href={`tel:${number}`}>{number}</a>;
-  const formatEmail = email => <a href={`mailto:${email}`}>{email}</a>;
+  const getRelationshipRow = (userId) => {
+    const user = getUserFromUserId(userId);
+    return (
+      <>
+        <Row key={user._id}>
+          <Col>{user.fullname}</Col>
+          <Col>
+            <center>
+              <PersonModal user={user} />
+            </center>
+          </Col>
+        </Row>
+        <hr />
+      </>
+    );
+  };
+
+  const formatMobileNumber = (number) => <a href={`tel:${number}`}>{number}</a>;
+  const formatEmail = (email) => <a href={`mailto:${email}`}>{email}</a>;
   const {
+    person_no,
+    family_no,
     name,
     surname,
     father_or_husband_name,
@@ -61,9 +76,14 @@ const ViewProfile = ({ user }) => {
     office_address_city,
     office_address_pin,
     landline_office,
+    relationships = {},
   } = user;
   return (
     <Container>
+      <ModalTitle text="System Information" />
+      {getRow("Person number", person_no)}
+      {getRow("Family number", family_no)}
+
       <ModalTitle text="Profile" />
 
       {getRow("First Name", name)}
@@ -76,15 +96,10 @@ const ViewProfile = ({ user }) => {
 
       {getRow("Blood Group", blood_group)}
       {getRow("Gender", gender)}
-      {getRow(
-        "Date of Birth",
-        <Moment format="DD/MM/YYYY">{date_of_birth}</Moment>
-      )}
+      {getRow("Date of Birth", <Moment format="DD/MM/YYYY">{date_of_birth}</Moment>)}
       <Row>
         {getCol("Marital Status", marital_status)}
-        {marriage_date ? (
-          <Moment format="DD/MM/YYYY">{marriage_date}</Moment>
-        ) : null}
+        {marriage_date ? <Moment format="DD/MM/YYYY">{marriage_date}</Moment> : null}
       </Row>
       <hr />
       {getRow("Father in Law", father_in_law_name, false)}
@@ -105,7 +120,7 @@ const ViewProfile = ({ user }) => {
       {getRow("City", residential_address_city)}
       {getRow("State", residential_address_state)}
       {getRow("Pin Code", pin_code)}
-      {email_address
+      {residential_landline
         ? getRow("Landline", formatMobileNumber(residential_landline))
         : null}
 
@@ -114,10 +129,58 @@ const ViewProfile = ({ user }) => {
       {getRow("City", office_address_city)}
       {getRow("State", office_address_state)}
       {getRow("Pin Code", office_address_pin)}
-      {email_address
+      {landline_office
         ? getRow("Landline", formatMobileNumber(landline_office))
         : null}
-      <Divider />
+
+      <ModalTitle text="Relationships" />
+      <ListGroup>
+        <ListGroupItem
+          style={{ cursor: "pointer" }}
+          action
+          onClick={() => setSiblingCollapse(!siblingCollapse)}
+          disabled={!(relationships.siblings && relationships.siblings.length > 0)}
+        >
+          Siblings
+        </ListGroupItem>
+        <Collapse isOpen={siblingCollapse}>
+          {relationships.siblings ? (
+            <Container>
+              {relationships.siblings.map((sibling) => getRelationshipRow(sibling))}
+            </Container>
+          ) : null}
+        </Collapse>
+        <ListGroupItem
+          style={{ cursor: "pointer" }}
+          disabled={!(relationships.parents && relationships.parents.length > 0)}
+          onClick={() => setParentCollapse(!parentCollapse)}
+          action
+        >
+          Parents
+        </ListGroupItem>
+        <Collapse isOpen={parentCollapse}>
+          {relationships.parents ? (
+            <Container>
+              {relationships.parents.map((parent) => getRelationshipRow(parent))}
+            </Container>
+          ) : null}
+        </Collapse>
+        <ListGroupItem
+          style={{ cursor: "pointer" }}
+          disabled={!(relationships.children && relationships.children.length > 0)}
+          onClick={() => setChildrenCollapse(!childrenCollapse)}
+          action
+        >
+          Children
+        </ListGroupItem>
+        <Collapse isOpen={childrenCollapse}>
+          {relationships.children ? (
+            <Container>
+              {relationships.children.map((child) => getRelationshipRow(child))}
+            </Container>
+          ) : null}
+        </Collapse>
+      </ListGroup>
     </Container>
   );
 };
