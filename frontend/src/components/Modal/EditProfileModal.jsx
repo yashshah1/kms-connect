@@ -56,7 +56,6 @@ const EditProfileModalFunction = (props) => {
     itemToString: (item) => (item ? item.fullname : ""),
     initialSelectedItem: user.relationships.father,
   });
-
   const motherComboBox = useCombobox({
     items: motherInputItems,
     onInputValueChange: ({ inputValue }) => {
@@ -195,8 +194,9 @@ const EditProfileModalFunction = (props) => {
   const onSubmit = (e) => {
     e.persist();
     e.preventDefault();
-    if (!changed) toggle();
-    else {
+    if (!changed) {
+      toggle();
+    } else {
       const name = capitalizeFirstLetter(user.name);
 
       const father_or_husband_name = capitalizeFirstLetter(
@@ -232,9 +232,13 @@ const EditProfileModalFunction = (props) => {
             (item) => item.person_no
           ),
           father:
-            fatherInputItems.length === 1 ? fatherInputItems[0].person_no : null,
+            fatherInputItems.length === 1
+              ? fatherInputItems[0].person_no
+              : user.relationships.father.person_no,
           mother:
-            motherInputItems.length === 1 ? motherInputItems[0].person_no : null,
+            motherInputItems.length === 1
+              ? motherInputItems[0].person_no
+              : user.relationships.mother.person_no,
         },
       };
       props.updateUser(finalUser);
