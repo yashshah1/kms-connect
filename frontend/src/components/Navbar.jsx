@@ -2,10 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import { Navbar, NavLink } from "reactstrap";
-import {
-  Home as HomeIcon,
-  ExitToApp as ExitToAppIcon,
-} from "@material-ui/icons";
+import { Home as HomeIcon, ExitToApp as ExitToAppIcon } from "@material-ui/icons";
 
 import { logOut } from "../redux/authRedux/authActions";
 
@@ -31,7 +28,7 @@ const NavBar = ({ loggedIn, logOut }) => (
   </div>
 );
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   loggedIn: state.auth.loggedIn,
 });
 

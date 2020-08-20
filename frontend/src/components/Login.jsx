@@ -1,24 +1,17 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
 import { Redirect } from "react-router-dom";
-import {
-  Container,
-  Col,
-  Form,
-  FormGroup,
-  Label,
-  Input,
-  Button,
-} from "reactstrap";
+import { Container, Col, Form, FormGroup, Label, Input, Button } from "reactstrap";
 
 import { login } from "../redux/authRedux/authActions";
 
 const Login = ({ login, loggedIn }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const handleSubmit = e => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     login(username, password);
+    setPassword("");
   };
   return (
     <>
@@ -37,7 +30,7 @@ const Login = ({ login, loggedIn }) => {
                   type="text"
                   name="username"
                   value={username}
-                  onChange={e => setUsername(e.target.value)}
+                  onChange={(e) => setUsername(e.target.value)}
                   required
                 />
               </FormGroup>
@@ -49,7 +42,7 @@ const Login = ({ login, loggedIn }) => {
                   type="password"
                   name="password"
                   value={password}
-                  onChange={e => setPassword(e.target.value)}
+                  onChange={(e) => setPassword(e.target.value)}
                   required
                 />
               </FormGroup>
@@ -68,7 +61,7 @@ const Login = ({ login, loggedIn }) => {
   );
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   loggedIn: state.auth.loggedIn,
 });
 

@@ -6,10 +6,10 @@ import { Container, Row, Col } from "reactstrap";
 import EditProfileModal from "./Modal/EditProfileModal";
 import PersonModal from "./Modal/PersonModal";
 
-const ViewFamily = props => {
+const ViewFamily = (props) => {
   return (
     <Container>
-      {props.familyMembers.map(member => (
+      {props.familyMembers.map((member) => (
         <Container key={member._id}>
           <Row>
             <Col>
@@ -30,10 +30,12 @@ const ViewFamily = props => {
   );
 };
 
-const mapStateToProps = state => ({
-  familyMembers: state.user.users.filter(
-    user => user.family_no === state.auth.user.family_no
-  ),
-});
+const mapStateToProps = (state) => {
+  return {
+    familyMembers: Object.values(state.user.users).filter(
+      (user) => user.family_no === state.auth.user.family_no
+    ),
+  };
+};
 
 export default connect(mapStateToProps)(ViewFamily);
