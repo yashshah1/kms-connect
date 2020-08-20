@@ -10,48 +10,68 @@ const Home = (props) => {
     // eslint-disable-next-line
   }, []);
   return (
-    <Container>
-      <Row className="my-2">
-        <Col>
-          <Link to="/members">
-            <div className="home-button">
-              <center>
-                <strong>Members List</strong>
-              </center>
-            </div>
-          </Link>
-        </Col>
-        <Col>
-          <Link to="/birthdays">
-            <div className="home-button">
-              <center>
-                <strong>Birthdays</strong>
-              </center>
-            </div>
-          </Link>
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <Link to="/family">
-            <div className="home-button">
-              <center>
-                <strong>View / Edit family</strong>
-              </center>
-            </div>
-          </Link>
-        </Col>
-        <Col>
-          <Link to="/changepassword">
-            <div className="home-button">
-              <center>
-                <strong>Change Password</strong>
-              </center>
-            </div>
-          </Link>
-        </Col>
-      </Row>
-    </Container>
+    <>
+      <Container>
+        <Row className="my-2">
+          <Col>
+            <Link to="/members">
+              <div className="home-button">
+                <center>
+                  <strong>Members List</strong>
+                </center>
+              </div>
+            </Link>
+          </Col>
+          <Col>
+            <Link to="/birthdays">
+              <div className="home-button">
+                <center>
+                  <strong>Birthdays</strong>
+                </center>
+              </div>
+            </Link>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <Link to="/family">
+              <div className="home-button">
+                <center>
+                  <strong>View / Edit family</strong>
+                </center>
+              </div>
+            </Link>
+          </Col>
+          <Col>
+            <Link to="/changepassword">
+              <div className="home-button">
+                <center>
+                  <strong>Change Password</strong>
+                </center>
+              </div>
+            </Link>
+          </Col>
+        </Row>
+      </Container>
+      <footer
+        style={{
+          position: "fixed",
+          left: "0px",
+          bottom: "0px",
+          width: "100%",
+          fontSize: "1.2em",
+          color: "black",
+          textAlign: "center",
+        }}
+      >
+        <div className="container">
+          <span className="text-muted">
+            Proof of Concept by <br />
+            Yash Narendra Shah
+          </span>
+        </div>
+      </footer>
+    </>
   );
 };
 
