@@ -18,7 +18,7 @@ const isSubSequenceNew = (small, big) => {
   small = small.toLowerCase().split(" ");
   big = big.toLowerCase().split(" ");
   if (small.length > big.length) return false;
-  isMatched = true;
+  let isMatched = true;
   for (let i = 0; i < small.length; i++) {
     if (!big[i].startsWith(small[i])) {
       isMatched = false;
