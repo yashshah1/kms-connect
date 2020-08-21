@@ -11,6 +11,16 @@ router.get("/", async (req, res) => {
   }
 });
 
+/**
+ * I'm A, I add B as a brother
+ * My Brothers are C, D and E;
+ * add B as a  bro for C D and E
+ * add C D E as a bro for B
+ */
+/**
+ * Make new collection for relationships
+ */
+
 router.post("/", async (req, res) => {
   const { user } = req.body;
   let promises = [];
