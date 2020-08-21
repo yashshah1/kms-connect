@@ -1,8 +1,9 @@
 const bcrypt = require("bcryptjs");
 
 const bcryptGenSaltPromise = (numberOfRounds = 10) => {
-  if (typeof numberOfRounds !== "number")
+  if (typeof numberOfRounds !== "number") {
     return Promise.reject("numberOfRounds should be a number");
+  }
   return new Promise((resolve, reject) => {
     bcrypt.genSalt(numberOfRounds, (err, salt) => {
       if (err) reject(err);

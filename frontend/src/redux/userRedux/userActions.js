@@ -2,11 +2,11 @@ import { GET_USER_SUCCESS, GET_USER_REQUEST, UPDATE_USERS } from "./userActionTy
 // eslint-disable-next-line
 import { setError } from "../errorRedux/errorActions";
 
-export const getUserRequest = () => ({
+const getUserRequest = () => ({
   type: GET_USER_REQUEST,
 });
 
-export const getUserSuccess = (data) => ({
+const getUserSuccess = (data) => ({
   type: GET_USER_SUCCESS,
   payload: data,
 });
