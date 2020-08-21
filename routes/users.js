@@ -48,29 +48,41 @@ router.post("/", async (req, res) => {
       changesMade["removedMother"] = oldRelationships.mother;
     }
 
-    for (const brother of newRelationships.brothers)
-      if (!oldRelationships.brothers.includes(brother))
+    for (const brother of newRelationships.brothers) {
+      if (!oldRelationships.brothers.includes(brother)) {
         changesMade["addedBrothers"].push(brother);
+      }
+    }
 
-    for (const brother of oldRelationships.brothers)
-      if (!newRelationships.brothers.includes(brother))
+    for (const brother of oldRelationships.brothers) {
+      if (!newRelationships.brothers.includes(brother)) {
         changesMade["removedBrothers"].push(brother);
+      }
+    }
 
-    for (const sister of newRelationships.sisters)
-      if (!oldRelationships.sisters.includes(sister))
+    for (const sister of newRelationships.sisters) {
+      if (!oldRelationships.sisters.includes(sister)) {
         changesMade["addedSisters"].push(sister);
+      }
+    }
 
-    for (const sister of oldRelationships.sisters)
-      if (!newRelationships.sisters.includes(sister))
+    for (const sister of oldRelationships.sisters) {
+      if (!newRelationships.sisters.includes(sister)) {
         changesMade["removedSisters"].push(sister);
+      }
+    }
 
-    for (const child of newRelationships.children)
-      if (!oldRelationships.children.includes(child))
+    for (const child of newRelationships.children) {
+      if (!oldRelationships.children.includes(child)) {
         changesMade["addedChildren"].push(child);
+      }
+    }
 
-    for (const child of oldRelationships.children)
-      if (!newRelationships.children.includes(child))
+    for (const child of oldRelationships.children) {
+      if (!newRelationships.children.includes(child)) {
         changesMade["removedChildren"].push(child);
+      }
+    }
     if (changesMade["addedFather"]) {
       promises.push(
         User.findOneAndUpdate(

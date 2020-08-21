@@ -194,9 +194,8 @@ const EditProfileModalFunction = (props) => {
   const onSubmit = (e) => {
     e.persist();
     e.preventDefault();
-    if (!changed) {
-      toggle();
-    } else {
+    if (!changed) toggle();
+    else {
       const name = capitalizeFirstLetter(user.name);
 
       const father_or_husband_name = capitalizeFirstLetter(

@@ -13,4 +13,19 @@ const isSubSequence = (small, big) => {
   }
   return smallIndex === small.length;
 };
-export default isSubSequence;
+
+const isSubSequenceNew = (small, big) => {
+  small = small.toLowerCase().split(" ");
+  big = big.toLowerCase().split(" ");
+  if (small.length > big.length) return false;
+  let isMatched = true;
+  for (let i = 0; i < small.length; i++) {
+    if (!big[i].startsWith(small[i])) {
+      isMatched = false;
+      break;
+    }
+  }
+  return isMatched;
+};
+
+export default isSubSequenceNew;
