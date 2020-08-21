@@ -68,8 +68,9 @@ router.post("/login", async (req, res) => {
   const user = await Auth.findOne({ username });
   if (!user) return res.status(404).json({ msg: "User not found" });
 
-  if (!user.verified)
+  if (!user.verified) {
     return res.status(404).json({ msg: "User not verified, contact admin" });
+  }
 
   try {
     const result = await bcryptComparePromise(password, user.password);
@@ -97,8 +98,9 @@ router.post("/changePassword", async (req, res) => {
 
   if (!user) return res.status(404).json({ msg: "User not found" });
 
-  if (!user.verified)
+  if (!user.verified) {
     return res.status(404).json({ msg: "User not verified, contact admin" });
+  }
 
   try {
     const result = await bcryptComparePromise(oldPassword, user.password);
