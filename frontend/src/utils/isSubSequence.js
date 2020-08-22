@@ -24,7 +24,14 @@ const isSubSequenceNew = (small, big) => {
   let isMatched = true;
 
   for (let i = 0; i < small.length; i++) {
-    if (!big[i].startsWith(small[i])) {
+    let innerIsMatched = false;
+    for (let j = i; j < big.length; j++) {
+      if (big[j].startsWith(small[i])) {
+        innerIsMatched = true;
+        break;
+      }
+    }
+    if (!innerIsMatched) {
       isMatched = false;
       break;
     }
