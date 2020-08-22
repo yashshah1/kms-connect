@@ -233,11 +233,11 @@ const EditProfileModalFunction = (props) => {
           father:
             fatherInputItems.length === 1
               ? fatherInputItems[0].person_no
-              : user.relationships.father.person_no,
+              : user.relationships.father?.person_no || null,
           mother:
             motherInputItems.length === 1
               ? motherInputItems[0].person_no
-              : user.relationships.mother.person_no,
+              : user.relationships.mother?.person_no || null,
         },
       };
       props.updateUser(finalUser);
@@ -641,7 +641,14 @@ const EditProfileModalFunction = (props) => {
             <ModalTitle text="Relationships" />
             {/* Father */}
             <FormGroup>
-              <Label {...fatherComboBox.getLabelProps()}>Father</Label>
+              <Label
+                {...fatherComboBox.getLabelProps()}
+                style={{
+                  fontSize: "1.1em",
+                }}
+              >
+                <strong>Father</strong>
+              </Label>
               <Input {...fatherComboBox.getInputProps()} />
               <ul
                 {...fatherComboBox.getMenuProps()}
@@ -677,7 +684,14 @@ const EditProfileModalFunction = (props) => {
 
             {/* Mother */}
             <FormGroup>
-              <Label {...motherComboBox.getLabelProps()}>Mother</Label>
+              <Label
+                {...motherComboBox.getLabelProps()}
+                style={{
+                  fontSize: "1.1em",
+                }}
+              >
+                <strong>Mother</strong>
+              </Label>
               <Input {...motherComboBox.getInputProps()} />
               <ul
                 {...motherComboBox.getMenuProps()}
@@ -713,7 +727,14 @@ const EditProfileModalFunction = (props) => {
 
             {/* brothers */}
             <FormGroup>
-              <Label {...brotherComboBox.getLabelProps()}>Brothers</Label>
+              <Label
+                {...brotherComboBox.getLabelProps()}
+                style={{
+                  fontSize: "1.1em",
+                }}
+              >
+                <strong>Brothers</strong>
+              </Label>
               <div>
                 {brotherMultipleSelection.selectedItems.map(
                   (selectedItem, index) => (
@@ -784,7 +805,14 @@ const EditProfileModalFunction = (props) => {
 
             {/* sisters */}
             <FormGroup>
-              <Label {...sisterComboBox.getLabelProps()}>Sisters</Label>
+              <Label
+                {...sisterComboBox.getLabelProps()}
+                style={{
+                  fontSize: "1.1em",
+                }}
+              >
+                <strong>Sisters</strong>
+              </Label>
               <div>
                 {sisterMultipleSelection.selectedItems.map((selectedItem, index) => (
                   <span
@@ -853,7 +881,14 @@ const EditProfileModalFunction = (props) => {
 
             {/* children */}
             <FormGroup>
-              <Label {...childComboBox.getLabelProps()}>Children</Label>
+              <Label
+                {...childComboBox.getLabelProps()}
+                style={{
+                  fontSize: "1.1em",
+                }}
+              >
+                <strong>Children</strong>
+              </Label>
               <div>
                 {childMultipleSelection.selectedItems.map((selectedItem, index) => (
                   <span
@@ -941,16 +976,18 @@ const EditProfileModalFunction = (props) => {
 };
 
 const mapStateToProps = (state, { user: userFromProps }) => {
-  const users = Object.values(state.user.users).map((user) => ({
-    person_no: user.person_no,
-    fullname: user.fullname,
-  }));
+  const users = Object.values(state.user.users)
+    .map((user) => ({
+      person_no: user.person_no,
+      fullname: user.fullname,
+    }))
+    .filter((user) => user.person_no !== state.auth.user.person_no);
   const user = {
     ...userFromProps,
     relationships: {
       ...userFromProps.relationships,
-      father: getUserFromUserId(userFromProps.relationships.father),
-      mother: getUserFromUserId(userFromProps.relationships.mother),
+      father: getUserFromUserId(userFromProps.relationships.father, true),
+      mother: getUserFromUserId(userFromProps.relationships.mother, true),
       brothers: userFromProps.relationships.brothers.map((brother) => {
         const tmpUser = getUserFromUserId(brother);
         return { person_no: tmpUser.person_no, fullname: tmpUser.fullname };
