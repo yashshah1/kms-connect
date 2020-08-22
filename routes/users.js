@@ -1,6 +1,8 @@
 const router = require("express").Router();
 const User = require("../models/User.model");
 
+const { removeByValue } = require("../utils");
+
 router.get("/", async (req, res) => {
   try {
     let users = await User.find({}).exec();
@@ -14,6 +16,9 @@ router.get("/", async (req, res) => {
 router.post("/", async (req, res) => {
   const { user } = req.body;
   let promises = [];
+  let updatedProfileIds = [];
+  updatedProfileIds.push(user.person_no);
+
   try {
     const oldUser = (
       await User.findOneAndUpdate(
@@ -38,6 +43,7 @@ router.post("/", async (req, res) => {
       addedChildren: [],
       removedChildren: [],
     };
+
     if (oldRelationships.father !== newRelationships.father) {
       changesMade["addedFather"] = newRelationships.father;
       changesMade["removedFather"] = oldRelationships.father;
@@ -87,40 +93,40 @@ router.post("/", async (req, res) => {
       promises.push(
         User.findOneAndUpdate(
           { person_no: changesMade["addedFather"] },
-          { $addToSet: { "relationships.children": user.person_no } },
-          { new: true }
+          { $addToSet: { "relationships.children": user.person_no } }
         ).exec()
       );
+      updatedProfileIds.push(changesMade["addedFather"]);
     }
 
     if (changesMade["removedFather"]) {
       promises.push(
         User.findOneAndUpdate(
           { person_no: changesMade["removedFather"] },
-          { $pull: { "relationships.children": user.person_no } },
-          { new: true }
+          { $pull: { "relationships.children": user.person_no } }
         ).exec()
       );
+      updatedProfileIds.push(changesMade["removedFather"]);
     }
 
     if (changesMade["addedMother"]) {
       promises.push(
         User.findOneAndUpdate(
           { person_no: changesMade["addedMother"] },
-          { $addToSet: { "relationships.children": user.person_no } },
-          { new: true }
+          { $addToSet: { "relationships.children": user.person_no } }
         ).exec()
       );
+      updatedProfileIds.push(changesMade["addedMother"]);
     }
 
     if (changesMade["removedMother"]) {
       promises.push(
         User.findOneAndUpdate(
           { person_no: changesMade["removedMother"] },
-          { $pull: { "relationships.children": user.person_no } },
-          { new: true }
+          { $pull: { "relationships.children": user.person_no } }
         ).exec()
       );
+      updatedProfileIds.push(changesMade["removedMother"]);
     }
 
     for (const child of changesMade["addedChildren"]) {
@@ -131,11 +137,11 @@ router.post("/", async (req, res) => {
             $set: {
               [`relationships.${iAmMale ? "father" : "mother"}`]: user.person_no,
             },
-          },
-          { new: true }
+          }
         ).exec()
       );
     }
+    updatedProfileIds = updatedProfileIds.concat(changesMade["addedChildren"]);
 
     for (const child of changesMade["removedChildren"]) {
       promises.push(
@@ -145,11 +151,11 @@ router.post("/", async (req, res) => {
             $set: {
               [`relationships.${iAmMale ? "father" : "mother"}`]: null,
             },
-          },
-          { new: true }
+          }
         ).exec()
       );
     }
+    updatedProfileIds = updatedProfileIds.concat(changesMade["removedChildren"]);
 
     for (const brother of changesMade["addedBrothers"]) {
       promises.push(
@@ -159,11 +165,11 @@ router.post("/", async (req, res) => {
             $addToSet: {
               [`relationships.${iAmMale ? "brothers" : "sisters"}`]: user.person_no,
             },
-          },
-          { new: true }
+          }
         ).exec()
       );
     }
+    updatedProfileIds = updatedProfileIds.concat(changesMade["addedBrothers"]);
 
     for (const brother of changesMade["removedBrothers"]) {
       promises.push(
@@ -173,11 +179,11 @@ router.post("/", async (req, res) => {
             $pull: {
               [`relationships.${iAmMale ? "brothers" : "sisters"}`]: user.person_no,
             },
-          },
-          { new: true }
+          }
         ).exec()
       );
     }
+    updatedProfileIds = updatedProfileIds.concat(changesMade["removedBrothers"]);
 
     for (const sister of changesMade["addedSisters"]) {
       promises.push(
@@ -187,11 +193,11 @@ router.post("/", async (req, res) => {
             $addToSet: {
               [`relationships.${iAmMale ? "brothers" : "sisters"}`]: user.person_no,
             },
-          },
-          { new: true }
+          }
         ).exec()
       );
     }
+    updatedProfileIds = updatedProfileIds.concat(changesMade["addedSisters"]);
 
     for (const sister of changesMade["removedSisters"]) {
       promises.push(
@@ -201,13 +207,139 @@ router.post("/", async (req, res) => {
             $pull: {
               [`relationships.${iAmMale ? "brothers" : "sisters"}`]: user.person_no,
             },
-          },
-          { new: true }
+          }
         ).exec()
       );
     }
+    updatedProfileIds = updatedProfileIds.concat(changesMade["removedSisters"]);
 
-    const newValues = (await Promise.all(promises)).map((user) => user.toObject());
+    await Promise.all(promises);
+    promises = [];
+
+    /**
+     * I have added bro/sis
+     * All my bro/sis have me as their bro/sis
+     *
+     * What needs to be done?
+     * 1) All my bro/sis ke siblings need to be my siblings
+     * 2) I need to be a bro for all my siblings ke bro/sis
+     */
+
+    let [allTheBrothers, allTheSisters] = await User.find(
+      {
+        person_no: {
+          $in: [...newRelationships.brothers, ...newRelationships.sisters],
+        },
+      },
+      { relationships: 1 }
+    ).then((users) => {
+      let mySiblingsBrothers = [];
+      let mySiblingsSisters = [];
+
+      users.forEach((user) => {
+        user = user.toObject();
+        mySiblingsBrothers = mySiblingsBrothers.concat(user.relationships.brothers);
+        mySiblingsSisters = mySiblingsSisters.concat(user.relationships.sisters);
+      });
+
+      return [mySiblingsBrothers, mySiblingsSisters];
+    });
+
+    allTheBrothers = allTheBrothers.concat(newRelationships.brothers);
+    allTheBrothers = [...new Set(allTheBrothers)];
+
+    allTheSisters = allTheSisters.concat(newRelationships.sisters);
+    allTheSisters = [...new Set(allTheSisters)];
+
+    promises.push(
+      User.updateOne(
+        { person_no: user.person_no },
+        {
+          $addToSet: {
+            "relationships.brothers": {
+              $each: removeByValue(allTheBrothers, user.person_no),
+            },
+          },
+        }
+      )
+    );
+    promises.push(
+      User.updateOne(
+        { person_no: user.person_no },
+        {
+          $addToSet: {
+            "relationships.sisters": {
+              $each: removeByValue(allTheSisters, user.person_no),
+            },
+          },
+        }
+      )
+    );
+
+    for (const brother of allTheBrothers) {
+      promises.push(
+        User.updateOne(
+          { person_no: brother },
+          {
+            $addToSet: {
+              "relationships.brothers": {
+                $each: removeByValue(allTheBrothers, brother),
+              },
+            },
+          }
+        )
+      );
+      promises.push(
+        User.updateOne(
+          { person_no: brother },
+          {
+            $addToSet: {
+              "relationships.sisters": {
+                $each: allTheSisters,
+              },
+            },
+          }
+        )
+      );
+    }
+
+    for (const sister of allTheSisters) {
+      promises.push(
+        User.updateOne(
+          { person_no: sister },
+          {
+            $addToSet: {
+              "relationships.brothers": {
+                $each: allTheBrothers,
+              },
+            },
+          }
+        )
+      );
+
+      promises.push(
+        User.updateOne(
+          { person_no: sister },
+          {
+            $addToSet: {
+              "relationships.sisters": {
+                $each: removeByValue(allTheSisters, sister),
+              },
+            },
+          }
+        )
+      );
+    }
+
+    await Promise.all(promises);
+
+    updatedProfileIds = updatedProfileIds.concat(allTheBrothers, allTheSisters);
+    updatedProfileIds = [...new Set(updatedProfileIds)];
+
+    const newValues = (
+      await User.find({ person_no: { $in: updatedProfileIds } })
+    ).map((user) => user.toObject());
+
     res.status(200).json(newValues);
   } catch (err) {
     console.log(err);
