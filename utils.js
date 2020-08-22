@@ -32,8 +32,17 @@ const bcryptComparePromise = (password, hash) => {
   });
 };
 
+const removeByValue = (array, value, count = 1) => {
+  const newArray = [...array];
+  if (newArray.indexOf(value) !== -1) {
+    newArray.splice(newArray.indexOf(value), count);
+  }
+  return newArray;
+};
+
 module.exports = {
   bcryptComparePromise,
   bcryptHashPromise,
   bcryptGenSaltPromise,
+  removeByValue,
 };
