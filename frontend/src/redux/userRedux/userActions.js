@@ -38,7 +38,6 @@ export const updateUser = (user) => async (dispatch) => {
     });
     const resData = await response.json();
     if (response.status !== 200) throw resData;
-    resData.push(user);
     dispatch({ type: UPDATE_USERS, payload: resData });
     alert("Done");
   } catch (err) {
