@@ -27,7 +27,7 @@ import { updateUser } from "../../redux/userRedux/userActions";
 import { getUserFromUserId } from "../../redux/utils";
 import isSubSequence from "../../utils/isSubSequence";
 
-const EditProfileModalFunction = (props) => {
+const EditProfileModal = (props) => {
   const [user, setUser] = useState(props.user);
   const [isOpen, setIsOpen] = useState(false);
   const [changed, setChanged] = useState(false);
@@ -1005,4 +1005,4 @@ const mapStateToProps = (state, { user: userFromProps }) => {
   return { users, user };
 };
 
-export default connect(mapStateToProps, { updateUser })(EditProfileModalFunction);
+export default connect(mapStateToProps, { updateUser })(EditProfileModal);

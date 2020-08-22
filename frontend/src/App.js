@@ -11,7 +11,7 @@ import NotYetBuilt from "./components/NotYetBuilt";
 import ChangePassword from "./components/ChangePassword";
 import "./App.css";
 
-function App() {
+const App = () => {
   console.log("You probably shouldn't be here");
   return (
     <>
@@ -52,6 +52,6 @@ function App() {
       </Switch>
     </>
   );
-}
+};
 
 export default App;
