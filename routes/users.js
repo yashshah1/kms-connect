@@ -217,34 +217,27 @@ router.post("/", async (req, res) => {
     await Promise.all(promises);
     promises = [];
 
-    /**
-     * I have added bro/sis
-     * All my bro/sis have me as their bro/sis
-     *
-     * What needs to be done?
-     * 1) All my bro/sis ke siblings need to be my siblings
-     * 2) I need to be a bro for all my siblings ke bro/sis
-     */
-
-    let [allTheBrothers, allTheSisters] = await User.find(
-      {
-        person_no: {
-          $in: [...newRelationships.brothers, ...newRelationships.sisters],
-        },
+    let [allTheBrothers, allTheSisters] = await User.find({
+      person_no: {
+        $in: [...newRelationships.brothers, ...newRelationships.sisters],
       },
-      { relationships: 1 }
-    ).then((users) => {
-      let mySiblingsBrothers = [];
-      let mySiblingsSisters = [];
+    })
+      .select("relationships")
+      .exec()
+      .then((users) => {
+        let mySiblingsBrothers = [];
+        let mySiblingsSisters = [];
 
-      users.forEach((user) => {
-        user = user.toObject();
-        mySiblingsBrothers = mySiblingsBrothers.concat(user.relationships.brothers);
-        mySiblingsSisters = mySiblingsSisters.concat(user.relationships.sisters);
+        users.forEach((user) => {
+          user = user.toObject();
+          mySiblingsBrothers = mySiblingsBrothers.concat(
+            user.relationships.brothers
+          );
+          mySiblingsSisters = mySiblingsSisters.concat(user.relationships.sisters);
+        });
+
+        return [mySiblingsBrothers, mySiblingsSisters];
       });
-
-      return [mySiblingsBrothers, mySiblingsSisters];
-    });
 
     allTheBrothers = allTheBrothers.concat(newRelationships.brothers);
     allTheBrothers = [...new Set(allTheBrothers)];
@@ -314,7 +307,7 @@ router.post("/", async (req, res) => {
     updatedProfileIds = [...new Set(updatedProfileIds)];
 
     const newValues = (
-      await User.find({ person_no: { $in: updatedProfileIds } })
+      await User.find({ person_no: { $in: updatedProfileIds } }).exec()
     ).map((user) => user.toObject());
 
     res.status(200).json(newValues);
@@ -327,8 +320,9 @@ router.post("/", async (req, res) => {
 router.get("/:userId", async (req, res) => {
   const { userId } = req.params;
   try {
-    let user = await User.findOne({ person_no: parseInt(userId, 10) }).exec();
-    user = user.toObject();
+    const user = (
+      await User.findOne({ person_no: parseInt(userId, 10) }).exec()
+    ).toObject();
     res.status(200).json(user);
   } catch (err) {
     res.status(400).json({ msg: "Error fetching users" });

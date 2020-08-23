@@ -43,12 +43,13 @@ router.post("/", adminAuth, async (req, res) => {
     await newUser.save();
     res.status(200).json({ msg: "Created Successfully" });
   } catch (err) {
-    return res.status(500).json({ msg: err });
+    res.status(500).json({ msg: err });
+    return;
   }
 });
 
 router.post("/all", adminAuth, async (req, res) => {
-  const users = await User.find({}, { person_no: true });
+  const users = await User.find({}).select("person_no").exec();
   const salt = bcrypt.genSaltSync(10);
   const usersArray = [];
 
@@ -65,18 +66,25 @@ router.post("/all", adminAuth, async (req, res) => {
 
 router.post("/login", async (req, res) => {
   const { username, password } = req.body;
-  const user = await Auth.findOne({ username });
-  if (!user) return res.status(404).json({ msg: "User not found" });
+  const user = await Auth.findOne({ username }).exec();
+  if (!user) {
+    res.status(404).json({ msg: "User not found" });
+    return;
+  }
 
   if (!user.verified) {
-    return res.status(404).json({ msg: "User not verified, contact admin" });
+    res.status(404).json({ msg: "User not verified, contact admin" });
+    return;
   }
 
   try {
     const result = await bcryptComparePromise(password, user.password);
-    if (!result) return res.status(401).json({ msg: "Invalid password" });
+    if (!result) {
+      res.status(401).json({ msg: "Invalid password" });
+      return;
+    }
 
-    let userData = await User.findOne({ person_no: parseInt(username) });
+    let userData = await User.findOne({ person_no: parseInt(username) }).exec();
     userData = userData.toObject();
 
     jwt.sign({ username }, jwtSecret, { expiresIn: "1y" }, (err, token) => {
@@ -88,7 +96,8 @@ router.post("/login", async (req, res) => {
       });
     });
   } catch (err) {
-    return res.status(500).json({ msg: err });
+    res.status(500).json({ msg: err });
+    return;
   }
 });
 
@@ -96,15 +105,22 @@ router.post("/changePassword", async (req, res) => {
   const { username, oldPassword, newPassword } = req.body;
   const user = await Auth.findOne({ username }).exec();
 
-  if (!user) return res.status(404).json({ msg: "User not found" });
+  if (!user) {
+    res.status(404).json({ msg: "User not found" });
+    return;
+  }
 
   if (!user.verified) {
-    return res.status(404).json({ msg: "User not verified, contact admin" });
+    res.status(404).json({ msg: "User not verified, contact admin" });
+    return;
   }
 
   try {
     const result = await bcryptComparePromise(oldPassword, user.password);
-    if (!result) return res.status(401).json({ msg: "Incorrect password" });
+    if (!result) {
+      res.status(401).json({ msg: "Incorrect password" });
+      return;
+    }
 
     const salt = await bcryptGenSaltPromise(10);
     const hash = await bcryptHashPromise(newPassword, salt);
@@ -112,7 +128,8 @@ router.post("/changePassword", async (req, res) => {
     await Auth.findOneAndUpdate({ username }, { password: hash }).exec();
     res.status(200).json({ msg: "Changed Successfully" });
   } catch (err) {
-    return res.status(500).json({ msg: err });
+    res.status(500).json({ msg: err });
+    return;
   }
 });
 
