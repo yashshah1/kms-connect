@@ -89,9 +89,10 @@ router.post("/", async (req, res) => {
         changesMade["removedChildren"].push(child);
       }
     }
+
     if (changesMade["addedFather"]) {
       promises.push(
-        User.findOneAndUpdate(
+        User.updateOne(
           { person_no: changesMade["addedFather"] },
           { $addToSet: { "relationships.children": user.person_no } }
         ).exec()
@@ -101,7 +102,7 @@ router.post("/", async (req, res) => {
 
     if (changesMade["removedFather"]) {
       promises.push(
-        User.findOneAndUpdate(
+        User.updateOne(
           { person_no: changesMade["removedFather"] },
           { $pull: { "relationships.children": user.person_no } }
         ).exec()
@@ -111,7 +112,7 @@ router.post("/", async (req, res) => {
 
     if (changesMade["addedMother"]) {
       promises.push(
-        User.findOneAndUpdate(
+        User.updateOne(
           { person_no: changesMade["addedMother"] },
           { $addToSet: { "relationships.children": user.person_no } }
         ).exec()
@@ -121,7 +122,7 @@ router.post("/", async (req, res) => {
 
     if (changesMade["removedMother"]) {
       promises.push(
-        User.findOneAndUpdate(
+        User.updateOne(
           { person_no: changesMade["removedMother"] },
           { $pull: { "relationships.children": user.person_no } }
         ).exec()
@@ -131,7 +132,7 @@ router.post("/", async (req, res) => {
 
     for (const child of changesMade["addedChildren"]) {
       promises.push(
-        User.findOneAndUpdate(
+        User.updateOne(
           { person_no: child },
           {
             $set: {
@@ -145,7 +146,7 @@ router.post("/", async (req, res) => {
 
     for (const child of changesMade["removedChildren"]) {
       promises.push(
-        User.findOneAndUpdate(
+        User.updateOne(
           { person_no: child },
           {
             $set: {
@@ -159,7 +160,7 @@ router.post("/", async (req, res) => {
 
     for (const brother of changesMade["addedBrothers"]) {
       promises.push(
-        User.findOneAndUpdate(
+        User.updateOne(
           { person_no: brother },
           {
             $addToSet: {
@@ -173,7 +174,7 @@ router.post("/", async (req, res) => {
 
     for (const brother of changesMade["removedBrothers"]) {
       promises.push(
-        User.findOneAndUpdate(
+        User.updateOne(
           { person_no: brother },
           {
             $pull: {
@@ -187,7 +188,7 @@ router.post("/", async (req, res) => {
 
     for (const sister of changesMade["addedSisters"]) {
       promises.push(
-        User.findOneAndUpdate(
+        User.updateOne(
           { person_no: sister },
           {
             $addToSet: {
@@ -201,7 +202,7 @@ router.post("/", async (req, res) => {
 
     for (const sister of changesMade["removedSisters"]) {
       promises.push(
-        User.findOneAndUpdate(
+        User.updateOne(
           { person_no: sister },
           {
             $pull: {
@@ -257,19 +258,14 @@ router.post("/", async (req, res) => {
         {
           $addToSet: {
             "relationships.brothers": {
-              $each: removeByValue(allTheBrothers, user.person_no),
+              $each: iAmMale
+                ? removeByValue(allTheBrothers, user.person_no)
+                : allTheBrothers,
             },
-          },
-        }
-      )
-    );
-    promises.push(
-      User.updateOne(
-        { person_no: user.person_no },
-        {
-          $addToSet: {
             "relationships.sisters": {
-              $each: removeByValue(allTheSisters, user.person_no),
+              $each: iAmMale
+                ? allTheSisters
+                : removeByValue(allTheSisters, user.person_no),
             },
           },
         }
@@ -285,15 +281,6 @@ router.post("/", async (req, res) => {
               "relationships.brothers": {
                 $each: removeByValue(allTheBrothers, brother),
               },
-            },
-          }
-        )
-      );
-      promises.push(
-        User.updateOne(
-          { person_no: brother },
-          {
-            $addToSet: {
               "relationships.sisters": {
                 $each: allTheSisters,
               },
@@ -312,16 +299,6 @@ router.post("/", async (req, res) => {
               "relationships.brothers": {
                 $each: allTheBrothers,
               },
-            },
-          }
-        )
-      );
-
-      promises.push(
-        User.updateOne(
-          { person_no: sister },
-          {
-            $addToSet: {
               "relationships.sisters": {
                 $each: removeByValue(allTheSisters, sister),
               },
