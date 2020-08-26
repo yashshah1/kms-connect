@@ -23,12 +23,15 @@ const App = () => {
           path="/home"
           render={(props) => <ProtectedRoute {...props} Component={Home} />}
         />
-        <Route
-          exact
-          path="/members"
-          render={(props) => <ProtectedRoute {...props} Component={UsersTable} />}
-        />
-        {/* <Route exact path="/members" component={UsersTable} /> */}
+        {process.env.NODE_ENV == "production" ? (
+          <Route
+            exact
+            path="/members"
+            render={(props) => <ProtectedRoute {...props} Component={UsersTable} />}
+          />
+        ) : (
+          <Route exact path="/members" component={UsersTable} />
+        )}
 
         <Route
           exact
