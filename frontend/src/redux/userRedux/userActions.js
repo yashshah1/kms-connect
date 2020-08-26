@@ -27,14 +27,10 @@ export const getUsers = () => async (dispatch) => {
 };
 
 export const updateUser = (user) => async (dispatch) => {
-  const reqData = { user };
   try {
     const response = await fetch("/api/users", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(reqData),
+      body: user,
     });
     const resData = await response.json();
     if (response.status !== 200) throw resData;

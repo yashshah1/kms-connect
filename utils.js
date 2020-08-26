@@ -40,9 +40,17 @@ const removeByValue = (array, value, count = 1) => {
   return newArray;
 };
 
+const dataTypeMapper = {
+  family_no: Number,
+  pin_code: Number,
+  person_no: Number,
+  relationships: JSON.parse,
+};
+
 module.exports = {
   bcryptComparePromise,
   bcryptHashPromise,
   bcryptGenSaltPromise,
   removeByValue,
+  dataTypeMapper,
 };

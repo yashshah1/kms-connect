@@ -93,8 +93,21 @@ const ViewProfile = ({ user }) => {
     landline_office,
     relationships,
   } = user;
+  const fileName = user.fileName || "";
   return (
     <Container>
+      <Row>
+        <img
+          src={`/api/images/${fileName}`}
+          style={{
+            height: "100px",
+            display: "block",
+            marginRight: "auto",
+            marginLeft: "auto",
+          }}
+          alt="Display"
+        />
+      </Row>
       <ModalTitle text="System Information" />
       {getRow("Person number", person_no)}
       {getRow("Family number", family_no)}

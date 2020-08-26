@@ -10,7 +10,7 @@ import { getUsers } from "../../redux/userRedux/userActions";
 
 const UsersTable = ({ getUsers, users }) => {
   useEffect(() => {
-    if (users.length === 0) getUsers();
+    if (Object.keys(users).length === 0) getUsers();
     // eslint-disable-next-line
   }, []);
   const baseFilterOptions = {
