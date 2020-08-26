@@ -11,6 +11,8 @@ coverage
 # production
 build
 
+uploads
+
 .vscode
 
 # misc
