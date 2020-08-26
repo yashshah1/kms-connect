@@ -27,7 +27,7 @@ app.use(express.json());
 
 app.use(express.static(path.join(__dirname, "frontend", "build")));
 
-const routes = ["users", "auth", "utils"];
+const routes = ["users", "auth", "utils", "images"];
 routes.forEach((route) => app.use(`/api/${route}`, require(`./routes/${route}`)));
 
 app.use((req, res) => {
