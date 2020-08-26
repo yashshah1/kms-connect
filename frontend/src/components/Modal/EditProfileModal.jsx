@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, createRef } from "react";
 import { connect } from "react-redux";
 import {
   Button,
@@ -38,6 +38,8 @@ const EditProfileModal = (props) => {
   const [brotherInput, setBrotherInput] = useState("");
   const [sisterInput, setSisterInput] = useState("");
   const [childInput, setChildInput] = useState("");
+
+  const previewImageRef = createRef();
 
   const getFilteredItems = (items, selectedItems, inputValue) =>
     items.filter(
@@ -186,10 +188,34 @@ const EditProfileModal = (props) => {
     e.persist();
     setUser((user) => ({
       ...user,
-      [e.target.name]: e.target.value,
+      [e.target.name]:
+        e.target.name === "image" ? e.target.files[0] : e.target.value,
     }));
+    if (e.target.name === "image") {
+      previewImageRef.current.src = URL.createObjectURL(e.target.files[0]);
+    }
+
     setChanged(true);
   };
+
+  const getFormData = (finalUser) => {
+    const myFormData = new FormData();
+    for (const [key, value] of Object.entries(finalUser)) {
+      if (
+        typeof value === "number" ||
+        typeof value === "string" ||
+        value === null ||
+        key === "image"
+      ) {
+        myFormData.append(key, value);
+      } else if (key === "relationships") {
+        myFormData.append(key, JSON.stringify(value));
+      }
+    }
+    return myFormData;
+  };
+
+  const getRandomInt = (max) => Math.floor(Math.random() * Math.floor(max));
 
   const onSubmit = (e) => {
     e.persist();
@@ -219,6 +245,11 @@ const EditProfileModal = (props) => {
         profession,
         education_specialisation,
         fullname,
+        fileName: user.image
+          ? `${user.person_no}-${getRandomInt(1000)}.${user.image.name
+              .split(".")
+              .pop()}`
+          : null,
         relationships: {
           ...user.relationships,
           brothers: brotherMultipleSelection.selectedItems.map(
@@ -240,7 +271,8 @@ const EditProfileModal = (props) => {
               : user.relationships.mother?.person_no || null,
         },
       };
-      props.updateUser(finalUser);
+      const formData = getFormData(finalUser);
+      props.updateUser(formData);
       toggle();
     }
   };
@@ -259,6 +291,30 @@ const EditProfileModal = (props) => {
         <ModalBody>
           <ModalTitle text="Basic Information" />
           <Form onSubmit={onSubmit}>
+            <FormGroup>
+              <Label for="image" lg>
+                Display Picture
+              </Label>
+              <img
+                src={`/api/images/${user.fileName || ""}`}
+                style={{
+                  height: "100px",
+                  display: "block",
+                  marginRight: "auto",
+                  marginLeft: "auto",
+                }}
+                ref={previewImageRef}
+                alt="Display"
+              />
+              <Input
+                type="file"
+                id="image"
+                name="image"
+                accept="image/*"
+                onChange={onChange}
+              />
+            </FormGroup>
+
             <FormGroup>
               <Label for="name">Name</Label>
               <Input
