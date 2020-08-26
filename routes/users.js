@@ -1,4 +1,20 @@
+const fs = require("fs");
+const path = require("path");
 const router = require("express").Router();
+const multer = require("multer");
+const dataTypeMapper = require("../middleware/fixDataTypes");
+
+const storage = multer.diskStorage({
+  destination: "./uploads/",
+  filename: function (req, file, cb) {
+    console.log(req.body);
+    const fileName = req.body.fileName;
+    cb(null, fileName);
+  },
+});
+
+const upload = multer({ storage });
+
 const User = require("../models/User.model");
 
 const { removeByValue } = require("../utils");
@@ -13,8 +29,16 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
-  const { user } = req.body;
+const deleteOldImage = (fileName) =>
+  new Promise((resolve, reject) => {
+    fs.unlink(path.join(__dirname, "..", "uploads", fileName), (err) => {
+      if (err) reject(err);
+      resolve();
+    });
+  });
+
+router.post("/", upload.single("image"), dataTypeMapper, async (req, res) => {
+  const user = req.body;
   let promises = [];
   let updatedProfileIds = [];
   updatedProfileIds.push(user.person_no);
@@ -26,6 +50,8 @@ router.post("/", async (req, res) => {
         user
       ).exec()
     ).toObject();
+
+    await deleteOldImage(oldUser.fileName);
 
     const iAmMale = user.gender === "Male";
     const { relationships: newRelationships } = user;
