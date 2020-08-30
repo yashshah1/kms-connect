@@ -44,6 +44,7 @@ router.post("/", upload.single("image"), dataTypeMapper, async (req, res) => {
   updatedProfileIds.push(user.person_no);
 
   try {
+    //  update my relationships to the desired ones
     const oldUser = (
       await User.findOneAndUpdate(
         { person_no: parseInt(user.person_no) },
@@ -116,6 +117,7 @@ router.post("/", upload.single("image"), dataTypeMapper, async (req, res) => {
       }
     }
 
+    // if I added a father, add me as a child
     if (changesMade["addedFather"]) {
       promises.push(
         User.updateOne(
@@ -126,6 +128,7 @@ router.post("/", upload.single("image"), dataTypeMapper, async (req, res) => {
       updatedProfileIds.push(changesMade["addedFather"]);
     }
 
+    // if I remove a father, remove me as a child
     if (changesMade["removedFather"]) {
       promises.push(
         User.updateOne(
@@ -136,6 +139,7 @@ router.post("/", upload.single("image"), dataTypeMapper, async (req, res) => {
       updatedProfileIds.push(changesMade["removedFather"]);
     }
 
+    // if I added a mother, add me as a child
     if (changesMade["addedMother"]) {
       promises.push(
         User.updateOne(
@@ -146,6 +150,7 @@ router.post("/", upload.single("image"), dataTypeMapper, async (req, res) => {
       updatedProfileIds.push(changesMade["addedMother"]);
     }
 
+    // if I removed a father, remove me as a child
     if (changesMade["removedMother"]) {
       promises.push(
         User.updateOne(
@@ -156,34 +161,33 @@ router.post("/", upload.single("image"), dataTypeMapper, async (req, res) => {
       updatedProfileIds.push(changesMade["removedMother"]);
     }
 
+    // if I added children, add me as a mom/dad for each one
     for (const child of changesMade["addedChildren"]) {
       promises.push(
         User.updateOne(
           { person_no: child },
           {
-            $set: {
-              [`relationships.${iAmMale ? "father" : "mother"}`]: user.person_no,
-            },
+            [`relationships.${iAmMale ? "father" : "mother"}`]: user.person_no,
           }
         ).exec()
       );
     }
     updatedProfileIds = updatedProfileIds.concat(changesMade["addedChildren"]);
 
+    // if I removed children, remove me as a mom/dad for each one
     for (const child of changesMade["removedChildren"]) {
       promises.push(
         User.updateOne(
           { person_no: child },
           {
-            $set: {
-              [`relationships.${iAmMale ? "father" : "mother"}`]: null,
-            },
+            [`relationships.${iAmMale ? "father" : "mother"}`]: null,
           }
         ).exec()
       );
     }
     updatedProfileIds = updatedProfileIds.concat(changesMade["removedChildren"]);
 
+    // if I added bros, add me as a bro/sis to each one
     for (const brother of changesMade["addedBrothers"]) {
       promises.push(
         User.updateOne(
@@ -198,6 +202,7 @@ router.post("/", upload.single("image"), dataTypeMapper, async (req, res) => {
     }
     updatedProfileIds = updatedProfileIds.concat(changesMade["addedBrothers"]);
 
+    // if I removed bros, remove me as a bro/sis to each one
     for (const brother of changesMade["removedBrothers"]) {
       promises.push(
         User.updateOne(
@@ -212,6 +217,7 @@ router.post("/", upload.single("image"), dataTypeMapper, async (req, res) => {
     }
     updatedProfileIds = updatedProfileIds.concat(changesMade["removedBrothers"]);
 
+    // if I added sis, add me as a bro/sis to each one
     for (const sister of changesMade["addedSisters"]) {
       promises.push(
         User.updateOne(
@@ -226,6 +232,7 @@ router.post("/", upload.single("image"), dataTypeMapper, async (req, res) => {
     }
     updatedProfileIds = updatedProfileIds.concat(changesMade["addedSisters"]);
 
+    // if I removed sis, remove me as a bro/sis to each one
     for (const sister of changesMade["removedSisters"]) {
       promises.push(
         User.updateOne(
@@ -240,6 +247,7 @@ router.post("/", upload.single("image"), dataTypeMapper, async (req, res) => {
     }
     updatedProfileIds = updatedProfileIds.concat(changesMade["removedSisters"]);
 
+    // reflect changes
     await Promise.all(promises);
     promises = [];
 
@@ -266,11 +274,18 @@ router.post("/", upload.single("image"), dataTypeMapper, async (req, res) => {
       });
 
     allTheBrothers = allTheBrothers.concat(newRelationships.brothers);
+    allTheBrothers = allTheBrothers.filter(
+      (brother) => !changesMade["removedBrothers"].includes(brother)
+    );
     allTheBrothers = [...new Set(allTheBrothers)];
 
     allTheSisters = allTheSisters.concat(newRelationships.sisters);
+    allTheSisters = allTheSisters.filter(
+      (sister) => !changesMade["removedSisters"].includes(sister)
+    );
     allTheSisters = [...new Set(allTheSisters)];
 
+    // add all the brothers and sisters to my profile
     promises.push(
       User.updateOne(
         { person_no: user.person_no },
@@ -291,6 +306,7 @@ router.post("/", upload.single("image"), dataTypeMapper, async (req, res) => {
       )
     );
 
+    // add me as a bro/sis to all the brothers
     for (const brother of allTheBrothers) {
       promises.push(
         User.updateOne(
@@ -308,7 +324,7 @@ router.post("/", upload.single("image"), dataTypeMapper, async (req, res) => {
         )
       );
     }
-
+    // add me as a bro/sis to all the sisters
     for (const sister of allTheSisters) {
       promises.push(
         User.updateOne(
