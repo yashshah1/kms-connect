@@ -11,18 +11,20 @@ const getUserSuccess = (data) => ({
   payload: data,
 });
 
-export const getUsers = () => async (dispatch) => {
-  dispatch(getUserRequest());
-  try {
-    const response = await fetch("/api/users/");
-    const data = await response.json();
-    const dataObj = {};
-    for (const person of data) dataObj[person.person_no] = person;
+export const getUsers = () => async (dispatch, getState) => {
+  if (getState().user.loading === false) {
+    dispatch(getUserRequest());
+    try {
+      const response = await fetch("/api/users/");
+      const data = await response.json();
+      const dataObj = {};
+      for (const person of data) dataObj[person.person_no] = person;
 
-    dispatch(getUserSuccess(dataObj));
-  } catch (err) {
-    alert(err.msg);
-    // dispatch(setError(err));
+      dispatch(getUserSuccess(dataObj));
+    } catch (err) {
+      alert(err.msg);
+      // dispatch(setError(err));
+    }
   }
 };
 
